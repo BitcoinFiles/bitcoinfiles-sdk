@@ -142,28 +142,15 @@ Please note: By default the *encoding* is UTF-8 and if anything other is provide
 
 ```
 
-### Get File by Txid
+### Resolve Bitcoin Files (b://) links to hosting provider
+
+Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be configured to return any hosting domain.
 
 ```javascript
-  const result = await bitcoinfiles.get('0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99');
+  const url = bitcoinfiles.getFileUrl('b://0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99');
 
-  console.log(result)
-  /*
-  {
-      success: true,
-      data: [
-          {
-              txid: '0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99',
-              url: 'https://media.bitcoinfiles.org/0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99'
-          }
-      ]
-  }
-  */
-
-  // With a callback
-  bitcoinfiles.get('0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99', function(result) {
-      console.log(result)
-  });
+  console.log(url)
+  // https://media.bitcoinfiles.org/0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99'
 
 ```
 
