@@ -11,17 +11,17 @@ Protocol Docs:
 **Easily create files in Bitcoin SV:**
 
 ```javascript
-  require('bitcoinfiles-sdk').createFile(
-      file: {
-          content: 'hello world',
-          contentType: 'text/plain',
-      },
-      pay: {
-          key: "your wif key"
-      }, function(result) {
-          console.log(result)
-      }
-  );
+  require('bitcoinfiles-sdk').createFile({
+    file: {
+        content: 'hello world',
+        contentType: 'text/plain',
+    },
+    pay: {
+        key: "your wif key"
+    }
+  }, function(result) {
+    console.log(result)
+  });
   /*
   {
       success: true
@@ -53,31 +53,32 @@ var bitcoinfiles = require('bitcoinfiles-sdk');
     /*
      Use with promises
     */
-    const result = await bitcoinfiles.createFile(
-        file: {
-            content: 'hello world',
-            contentType: 'text/plain',
-        },
-        pay: {
-            key: "your wif key"
-        }
-    );
+    const result = await bitcoinfiles.createFile({
+      file: {
+          content: 'hello world',
+          contentType: 'text/plain',
+      },
+      pay: {
+          key: "your wif key"
+      }
+    });
+
     console.log(result);
 
     /*
      Use with callback
     */
-    require('bitcoinfiles-sdk').createFile(
-        file: {
-            content: 'hello world',
-            contentType: 'text/plain',
-        },
-        pay: {
-            key: "your wif key"
-        }, function(result) {
-            console.log(result)
-        }
-    );
+    require('bitcoinfiles-sdk').createFile({
+      file: {
+          content: 'hello world',
+          contentType: 'text/plain',
+      },
+      pay: {
+          key: "your wif key"
+      }
+    }, function(result) {
+          console.log(result)
+    });
     /*
     {
         success: true
@@ -95,18 +96,18 @@ You can specify up to 3 optional tags. If tags are specified then the file name 
 Please note: By default the *encoding* is UTF-8 and if anything other is provided, then it is assumed to be binary data and it is your responsibility to hex-encode the `content` parameter with your binary data.
 
 ```javascript
-    var result = await bitcoinfiles.createFile(
-        file: {
-            content: JSON.stringify({ hello: "world", "someValue": 123}),
-            contentType: 'application/json',
-            encoding: 'utf-8',
-            name: 'myfile.json',
-            tags: ['coding', 'https://www.bitcoinfiles.org/schema/1', 'another tag']
-        },
-        pay: {
-            key: "your wif key"
-        }
-    );
+    var result = await bitcoinfiles.createFile({
+      file: {
+          content: JSON.stringify({ hello: "world", "someValue": 123}),
+          contentType: 'application/json',
+          encoding: 'utf-8',
+          name: 'myfile.json',
+          tags: ['coding', 'https://www.bitcoinfiles.org/schema/1', 'another tag']
+      },
+      pay: {
+          key: "your wif key"
+      }
+    });
     console.log(result);
     /*
     {
@@ -119,25 +120,25 @@ Please note: By default the *encoding* is UTF-8 and if anything other is provide
 ### Get File by Txid
 
 ```javascript
-   const result = await bitcoinfiles.get('0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99');
+  const result = await bitcoinfiles.get('0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99');
 
-    console.log(result)
-    /*
-    {
-        success: true,
-        data: [
-            {
-                txid: '0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99',
-                url: 'https://media.bitcoinfiles.org/0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99'
-            }
-        ]
-    }
-    */
+  console.log(result)
+  /*
+  {
+      success: true,
+      data: [
+          {
+              txid: '0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99',
+              url: 'https://media.bitcoinfiles.org/0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99'
+          }
+      ]
+  }
+  */
 
-    // With a callback
-    bitcoinfiles.get('0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99', function(result) {
-        console.log(result)
-    });
+  // With a callback
+  bitcoinfiles.get('0e3bd6077c1da1e564c36dd18c71d4d45c00369cd1badcfa303a88b867809c99', function(result) {
+      console.log(result)
+  });
 
 ```
 
