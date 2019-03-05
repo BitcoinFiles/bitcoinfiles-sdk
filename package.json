@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BitcoinFiles/BitcoinFilesJS.git"
+    "url": "git+https://github.com/BitcoinFiles/bitcoinfiles-sdk.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/BitcoinFiles/BitcoinFilesJS/issues"
+    "url": "https://github.com/BitcoinFiles/bitcoinfiles-sdk/issues"
   },
-  "homepage": "https://github.com/BitcoinFiles/BitcoinFilesJS#readme",
+  "homepage": "https://github.com/BitcoinFiles/bitcoinfiles-sdk#readme",
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
