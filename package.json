@@ -1,0 +1,37 @@
+{
+  "name": "bitcoinfilesjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --reporter spec",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitcoinFiles/BitcoinFilesJS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BitcoinFiles/BitcoinFilesJS/issues"
+  },
+  "homepage": "https://github.com/BitcoinFiles/BitcoinFilesJS#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "base-58": "0.0.1",
+    "datapay": "0.0.8",
+    "jsonschema": "^1.2.4",
+    "text-encoder": "0.0.4"
+  },
+  "files": [
+    "dist/*"
+  ]
+}
