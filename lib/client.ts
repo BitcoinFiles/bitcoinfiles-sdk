@@ -88,10 +88,10 @@ export class Client {
             }
 
             try {
-                let encoding = request.file.encoding ? request.file.encoding : 'UTF-8';
+                let encoding = request.file.encoding ? request.file.encoding : 'utf-8';
                 let content = '';
                 if (this.isUtf8(encoding)) {
-                    encoding = 'UTF-8';
+                    encoding = 'utf-8';
                     content = this.hexEncode(request.file.content)
                 } else {
                     content = request.file.content

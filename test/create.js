@@ -2,7 +2,7 @@
 var expect = require('chai').expect;
 var index = require('../dist/index.js');
 
-const privateKey = 'key';
+const privateKey = 'your key';
 
 describe('create function test', () => {
     it('should return false no key', async () => {
@@ -124,10 +124,10 @@ describe('create function test', () => {
         var createRequest = {
             file: {
                 content: JSON.stringify({ foo: "bar" }),
-                contentType: 'application/test+json',
+                contentType: 'application/json',
                 encoding: 'utf8',
                 name: 'file.json',
-                tags: ['tag1', 'https://www.bitcoinfiles.org#super-%24-$422-9/#', 'some other tag']
+                tags: ['tag1', 'https://www.bitcoinfiles.org#super-%24-$422-9/#', 'some other tag', '4thtag', '5th element']
             },
             pay: {
                 key: privateKey

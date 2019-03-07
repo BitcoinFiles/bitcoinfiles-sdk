@@ -239,6 +239,30 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
 
 ```
 
+*Find the most recent file named 'hello.txt' created by 1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz*
+
+```javascript
+  var result = await bitcoinfiles.find({
+      address: "1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz",
+      name: "hello.txt",
+      skip: 1,
+      sort: -1
+  });
+  console.log(result);
+  /*
+  {
+      success: true,
+      data: [
+              {
+                  txid: '821a1cf59160b08a5e2805c33d19381a0124ea8291808ad23e306b4f9e7782bd',
+                  url: 'https://media.bitcoinfiles.org/821a1cf59160b08a5e2805c33d19381a0124ea8291808ad23e306b4f9e7782bd'
+              }
+          ]
+  }
+  */
+
+```
+
 ## Build  and Test
 
 ```
