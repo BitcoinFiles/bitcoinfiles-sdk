@@ -235,13 +235,14 @@ export class Client {
                 if (request.tags && request.tags.length) {
                     let tagStartIndex = 6;
                     for (const tag of request.tags) {
-                        tagStartIndex++;
                         // Do not search on null or undefined tag, skip it
                         if (tag === undefined || tag === null) {
+                            tagStartIndex++;
                             continue;
                         }
                         let tagField = 'out.s' + tagStartIndex;
                         query = this.addFindClause(query, tagField, tag);
+                        tagStartIndex++;
                     }
                 }
                 if (request.debug) {
