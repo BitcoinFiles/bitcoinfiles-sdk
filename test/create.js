@@ -127,7 +127,7 @@ describe('create function test', () => {
                 contentType: 'application/json',
                 encoding: 'utf8',
                 name: 'file.json',
-                tags: ['tag1', 'https://www.bitcoinfiles.org#super-%24-$422-9/#', 'some other tag', '4thtag', '5th element']
+                tags: ['tag99', 'https://www.bitcoinfiles.org#super-%24-$422-9/#', 'some other tag', '4thtag', '5th element']
             },
             pay: {
                 key: privateKey

@@ -1,6 +1,7 @@
 
 import { Client } from './client';
 import { FileData } from './models/file-data.interface';
+import { Utils } from './utils';
 
 /**
  * Decode a b:// or bitcoinasset:// URL to a hosting provider
@@ -47,7 +48,6 @@ export function find(request: {
   return client.find(request, callback);
 }
 
-
 /**
  * Get a Bitcoin Data File by txid
  * @param txid txid of bitoin file
@@ -58,4 +58,30 @@ export function get(txid: string, callback?: Function, options?: any): Promise<a
   const client = new Client(options);
   return client.get(txid, callback);
 }
+
+/**
+ * Sign arguments with address key to get a signature
+ * @param payload
+ */
+export function signArguments(payload: { args: any[], address: string, key: string, indexes: number[] }): string {
+  return Utils.signArguments(payload);
+}
+
+/**
+ * Build an array of hex strings representing the AUTHOR_IDENTITY protocol
+ * @param payload
+ */
+export function buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes: number[] }): Array<string> {
+  return Utils.buildAuthorIdentity(payload);
+}
+
+/**
+ * 
+ * @param args Arguments from an OP_RETURN
+ */
+export function verifyAuthorIdentity(args: any[]): boolean {
+  return Utils.verifyAuthorIdentity(args);
+}
+
+
 

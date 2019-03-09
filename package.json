@@ -1,6 +1,6 @@
 {
   "name": "bitcoinfiles-sdk",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,8 +27,10 @@
   "dependencies": {
     "axios": "^0.18.0",
     "base-58": "0.0.1",
+    "bsv": "^0.24.8",
     "datapay": "0.0.8",
     "jsonschema": "^1.2.4",
+    "lodash": "^4.17.11",
     "text-encoder": "0.0.4"
   },
   "files": [
