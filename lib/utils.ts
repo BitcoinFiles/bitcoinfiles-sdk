@@ -246,7 +246,6 @@ export class Utils {
                 }
             }
         }
-        console.log(' --- final');
         return verifiedAtLeastOne && signaturesFound > 0 && signaturesFound === signaturesMatched;
     }
 }

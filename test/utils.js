@@ -5,8 +5,8 @@ var bsv = require('bsv');
 var bsvMessage = require('bsv/message');
 bsv.Message = bsvMessage;
 
-const privateKey = 'your wif key';
-const address = 'address of wif key';
+const privateKey = 'wif key';
+const address = '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz';
 
 describe('sign', () => {
     it('#signArguments should fail insufficient args add Author Identity Signature', async () => {
