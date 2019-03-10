@@ -203,7 +203,8 @@ export class Utils {
                return true;
             }
         } catch (ex) {
-            console.log('verify ex', ex);
+            // Fail silently
+            // todo: add debug/verbose mode in future
         }
         return false;
     }

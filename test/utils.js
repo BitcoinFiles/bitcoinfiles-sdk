@@ -5,7 +5,7 @@ var bsv = require('bsv');
 var bsvMessage = require('bsv/message');
 bsv.Message = bsvMessage;
 
-const privateKey = 'wif key';
+const privateKey = '';
 const address = '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz';
 
 describe('sign', () => {
@@ -521,6 +521,35 @@ describe('sign', () => {
             Buffer.from('sign me'),
             Buffer.from('and me'),
             Buffer.from('|')
+        ];
+
+        // Optional, you can generate the signature if you like and inspect it
+        /* const signature = index.signArguments({
+            args: args,
+            address: address,
+            key: privateKey
+        });
+        */
+
+        // Build the OP_RETURN payload for AUTHOR_IDENTITY, assume all args are used
+        // Step 2. Build the AUTHOR_IDENTITY from the args, address and key
+        const opReturnHexArray = index.buildAuthorIdentity({
+            args: args,
+            address: address,
+            key: privateKey
+        });
+        const fullOpReturnFields = args.concat(opReturnHexArray);
+        const verified = index.verifyAuthorIdentity(fullOpReturnFields);
+        expect(verified).to.eql(true);
+    });
+
+    it('#buildAuthorIdentity and #verifyAuthorIdentity success with a simpler example', async () => {
+        // These are the OP_RETURN buffers that you want to sign
+        // Step 1. Declare what OP_RETURN fields you want to sign
+        const args = [
+            Buffer.from('sign me').toString('hex'),
+            Buffer.from('and me').toString('hex'),
+            Buffer.from('|').toString('hex'),
         ];
 
         // Optional, you can generate the signature if you like and inspect it
