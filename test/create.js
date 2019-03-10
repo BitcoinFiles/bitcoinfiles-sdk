@@ -2,7 +2,10 @@
 var expect = require('chai').expect;
 var index = require('../dist/index.js');
 
-const privateKey = 'your key';
+// Do not use this to send money!
+// You will lose your bitcoin!
+// This is here for testing purposes only
+const privateKey = '5KLpZB2Sfn4S7QXh6rRynXrVZXXT8zTdQBaj7Ngs3ZHpip5zd8r';
 
 describe('create function test', () => {
     it('should return false no key', async () => {
@@ -102,6 +105,7 @@ describe('create function test', () => {
     });
 
     /*
+    // Uncomment this line to send a real transaction
     it('should return success created file utf-8 default', async () => {
         var createRequest = {
             file: {
@@ -117,9 +121,11 @@ describe('create function test', () => {
         console.log('result', result);
         expect(result.success).to.equal(true);
     });
-*/
 
+    */
 
+    /*
+    // Uncomment this line to send a real transaction
     it('should return success created file utf-8 default', async () => {
         var createRequest = {
             file: {
@@ -138,6 +144,6 @@ describe('create function test', () => {
         console.log('result', result);
         expect(result.success).to.equal(true);
     });
-
+    */
 
 });

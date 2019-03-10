@@ -5,7 +5,10 @@ var bsv = require('bsv');
 var bsvMessage = require('bsv/message');
 bsv.Message = bsvMessage;
 
-const privateKey = '';
+// Do not use this to send money!
+// You will lose your bitcoin!
+// This is here for testing purposes only
+const privateKey = '5KLpZB2Sfn4S7QXh6rRynXrVZXXT8zTdQBaj7Ngs3ZHpip5zd8r';
 const address = '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz';
 
 describe('sign', () => {

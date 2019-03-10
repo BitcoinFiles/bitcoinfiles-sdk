@@ -15,15 +15,9 @@ describe('find function test', () => {
         var result = await index.find({
             address: "1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz"
         });
-        expect(result).to.eql({
-            success: true,
-            data: [
-                {
-                    txid: 'a3d898880d39e4c09c5b566da02c380e2b791d0a3b46aa0c0fc39572e7fa1b7e',
-                    url: 'https://media.bitcoinfiles.org/a3d898880d39e4c09c5b566da02c380e2b791d0a3b46aa0c0fc39572e7fa1b7e'
-                }
-            ]
-        });
+        expect(result.success).to.equal(true);
+        expect(result.data.length > 0).to.equal(true);
+
     });
 
     it('should return true with latest file with first and second tags set', async () => {
