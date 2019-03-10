@@ -70,13 +70,14 @@ export function signArguments(payload: { args: any[], address: string, key: stri
 /**
  * Build an array of hex strings representing the AUTHOR_IDENTITY protocol
  * @param payload
+ * @param include0x Whether to return 0x or not at the end
  */
-export function buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes: number[] }): Array<string> {
-  return Utils.buildAuthorIdentity(payload);
+export function buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes: number[] }, include0x?: boolean): Array<string> {
+  return Utils.buildAuthorIdentity(payload, include0x);
 }
 
 /**
- * 
+ *
  * @param args Arguments from an OP_RETURN
  */
 export function verifyAuthorIdentity(args: any[]): boolean {

@@ -575,4 +575,33 @@ describe('sign', () => {
         expect(verified).to.eql(true);
     });
 
+    it('#buildAuthorIdentity and #verifyAuthorIdentity success with a simpler example', async () => {
+        // These are the OP_RETURN buffers that you want to sign
+        // Step 1. Declare what OP_RETURN fields you want to sign
+        const args = [
+            Buffer.from('sign me').toString('hex'),
+            Buffer.from('and me').toString('hex'),
+            Buffer.from('|').toString('hex'),
+        ];
+
+        // Build the OP_RETURN payload for AUTHOR_IDENTITY, assume all args are used
+        // Step 2. Build the AUTHOR_IDENTITY from the args, address and key
+        const opReturnHexArray = index.buildAuthorIdentity({
+            args: args,
+            address: address,
+            key: privateKey
+        }, false);
+        const fullOpReturnFields = args.concat(opReturnHexArray);
+        expect(fullOpReturnFields[3]).to.eql('313550636948473232534e4c514a584d6f5355615756693757537163376843667661')
+        expect(fullOpReturnFields[4]).to.eql('312e302e30')
+        expect(fullOpReturnFields[5]).to.eql('4543445341')
+        expect(fullOpReturnFields[8]).to.eql('03')
+        expect(fullOpReturnFields[9]).to.eql('03')
+        expect(fullOpReturnFields[10]).to.eql('00')
+        expect(fullOpReturnFields[11]).to.eql('01')
+        expect(fullOpReturnFields[12]).to.eql('02')
+        const verified = index.verifyAuthorIdentity(fullOpReturnFields);
+        expect(verified).to.eql(true);
+    });
+
 })

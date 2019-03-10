@@ -105,11 +105,11 @@ export class Utils {
         indexesCount = include0x ? '0x' + toHex(indexesCount) : toHex(indexesCount);
 
         const constructed = [
-            '0x' + Buffer.from(authorIdentityPrefix).toString('hex'),
-            '0x' + Buffer.from('1.0.0').toString('hex'),
-            '0x' + Buffer.from('ECDSA').toString('hex'),
-            '0x' + Buffer.from(payload.address).toString('hex'),
-            '0x' + Buffer.from(signature, 'base64').toString('hex')
+            (include0x ? '0x' : '') + Buffer.from(authorIdentityPrefix).toString('hex'),
+            (include0x ? '0x' : '') + Buffer.from('1.0.0').toString('hex'),
+            (include0x ? '0x' : '') + Buffer.from('ECDSA').toString('hex'),
+            (include0x ? '0x' : '') + Buffer.from(payload.address).toString('hex'),
+            (include0x ? '0x' : '') + Buffer.from(signature, 'base64').toString('hex')
         ];
 
         let negativeOffset = payload.args.length;
