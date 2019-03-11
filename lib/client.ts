@@ -41,8 +41,14 @@ export class Client {
         function buf2hex(buffer: any): any {
           return Array.prototype.map.call(new Uint8Array(buffer), (x: any) => ('00' + x.toString(16)).slice(-2)).join('');
         }
-        let enc = new textEncoder.TextEncoder().encode(str);
-        return '0x' + buf2hex(enc)
+        const checkHexPrefixRegex = /^0x(.*)/i;
+        const match = checkHexPrefixRegex.exec(str);
+        if (match) {
+            return str;
+        } else {
+            let enc = new textEncoder.TextEncoder().encode(str);
+            return '0x' + buf2hex(enc)
+        }
     }
 
     private isUtf8(encoding: string): boolean {
