@@ -1,7 +1,7 @@
 
 import { Client } from './client';
 import { FileData } from './models/file-data.interface';
-import { Utils } from './utils';
+import { Utils, VerificationResult } from './utils';
 
 /**
  * Decode a b:// or bitcoinasset:// URL to a hosting provider
@@ -79,9 +79,10 @@ export function buildAuthorIdentity(payload: { args: any[], address: string, key
 /**
  *
  * @param args Arguments from an OP_RETURN
+ * @param expectedAuthorAddresses Array of addresses that are expected to sign in order
  */
-export function verifyAuthorIdentity(args: any[]): boolean {
-  return Utils.verifyAuthorIdentity(args);
+export function verifyAuthorIdentity(args: any[], expectedAuthorAddresses: string[] | string): VerificationResult {
+  return Utils.verifyAuthorIdentity(args, expectedAuthorAddresses);
 }
 
 

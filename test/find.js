@@ -57,6 +57,24 @@ describe('find function test', () => {
         });
     });
 
+    it('should return true with file containing hex formatted tag', async () => {
+        var result = await index.find({
+            tags: [
+                'this is a test tag',
+                '0x61', // letter 'a'
+            ]
+        });
+        expect(result).to.eql({
+            success: true,
+            data: [
+                {
+                    txid: 'a9cc49be9666444345698e356ff985e997c7ee40f10197ebd4aacb3a5f88b6ae',
+                    url: 'https://media.bitcoinfiles.org/a9cc49be9666444345698e356ff985e997c7ee40f10197ebd4aacb3a5f88b6ae'
+                }
+            ]
+        });
+    });
+
     it('should return true with last few application/test+json', async () => {
         var result = await index.find({
             address: "1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz",

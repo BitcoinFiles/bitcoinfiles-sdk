@@ -360,8 +360,8 @@ describe('sign', () => {
             '0x01',
             '0x05'
         ];
-        const verified = index.verifyAuthorIdentity(opReturnFields);
-        expect(verified).to.eql(true);
+        const verified = index.verifyAuthorIdentity(opReturnFields, ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz']);
+        expect(verified.verified).to.eql(true);
     });
 
     it('#verifyAuthorIdentity success to create an author identity', async () => {
@@ -384,16 +384,19 @@ describe('sign', () => {
             '01',
             '05'
         ];
-        const verified = index.verifyAuthorIdentity(opReturnFields);
-        expect(verified).to.eql(true);
+        const verified = index.verifyAuthorIdentity(opReturnFields, ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz']);
+        expect(verified.verified).to.eql(true);
     });
 
     it('#verifyAuthorIdentity fail to sign with inadequate arguments', async () => {
-        let verified = index.verifyAuthorIdentity([]);
-        expect(verified).to.eql(false);
+        expect(function() {
+            let verified = index.verifyAuthorIdentity([]);
+            expect(verified.verified).to.eql(false);
+        }).to.throw(Error);
+
         expect(function() {
             let verified = index.verifyAuthorIdentity(null);
-            expect(verified).to.eql(false);
+            expect(verified.verified).to.eql(false);
         }).to.throw(Error);
     });
 
@@ -416,8 +419,8 @@ describe('sign', () => {
             '0x00',
             '0x01',
         ];
-        const verified = index.verifyAuthorIdentity(opReturnFields);
-        expect(verified).to.eql(false);
+        const verified = index.verifyAuthorIdentity(opReturnFields, ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz']);
+        expect(verified.verified).to.eql(false);
     });
 
     it('#verifyAuthorIdentity fail with inadequate args 2', async () => {
@@ -438,8 +441,8 @@ describe('sign', () => {
             '0x00',
             '0x01',
         ];
-        const verified = index.verifyAuthorIdentity(opReturnFields);
-        expect(verified).to.eql(false);
+        const verified = index.verifyAuthorIdentity(opReturnFields, '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz');
+        expect(verified.verified).to.eql(false);
     });
 
     it('#verifyAuthorIdentity fail with invalid', async () => {
@@ -462,8 +465,9 @@ describe('sign', () => {
             '0x01',
             '0x05'
         ];
-        const verified = index.verifyAuthorIdentity(opReturnFields);
-        expect(verified).to.eql(false);
+        expect(function() {
+            index.verifyAuthorIdentity(opReturnFields, '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz');
+        }).to.throw(Error);
     });
 
     it('#buildAuthorIdentity and #verifyAuthorIdentity success to create an author identity', async () => {
@@ -513,11 +517,11 @@ describe('sign', () => {
         ];
         expect(opReturnHexArray).to.eql(expected);
         const opReturnFields = args.concat(expected);
-        const verified = index.verifyAuthorIdentity(opReturnFields);
-        expect(verified).to.eql(true);
+        const verified = index.verifyAuthorIdentity(opReturnFields, [address]);
+        expect(verified.verified).to.eql(true);
     });
 
-    it('#buildAuthorIdentity and #verifyAuthorIdentity success with a simpler example', async () => {
+    it('#buildAuthorIdentity and #verifyAuthorIdentity success example 1', async () => {
         // These are the OP_RETURN buffers that you want to sign
         // Step 1. Declare what OP_RETURN fields you want to sign
         const args = [
@@ -542,40 +546,11 @@ describe('sign', () => {
             key: privateKey
         });
         const fullOpReturnFields = args.concat(opReturnHexArray);
-        const verified = index.verifyAuthorIdentity(fullOpReturnFields);
-        expect(verified).to.eql(true);
+        const verified = index.verifyAuthorIdentity(fullOpReturnFields, [address]);
+        expect(verified.verified).to.eql(true);
     });
 
-    it('#buildAuthorIdentity and #verifyAuthorIdentity success with a simpler example', async () => {
-        // These are the OP_RETURN buffers that you want to sign
-        // Step 1. Declare what OP_RETURN fields you want to sign
-        const args = [
-            Buffer.from('sign me').toString('hex'),
-            Buffer.from('and me').toString('hex'),
-            Buffer.from('|').toString('hex'),
-        ];
-
-        // Optional, you can generate the signature if you like and inspect it
-        /* const signature = index.signArguments({
-            args: args,
-            address: address,
-            key: privateKey
-        });
-        */
-
-        // Build the OP_RETURN payload for AUTHOR_IDENTITY, assume all args are used
-        // Step 2. Build the AUTHOR_IDENTITY from the args, address and key
-        const opReturnHexArray = index.buildAuthorIdentity({
-            args: args,
-            address: address,
-            key: privateKey
-        });
-        const fullOpReturnFields = args.concat(opReturnHexArray);
-        const verified = index.verifyAuthorIdentity(fullOpReturnFields);
-        expect(verified).to.eql(true);
-    });
-
-    it('#buildAuthorIdentity and #verifyAuthorIdentity success with a simpler example', async () => {
+    it('#buildAuthorIdentity and #verifyAuthorIdentity success example 2', async () => {
         // These are the OP_RETURN buffers that you want to sign
         // Step 1. Declare what OP_RETURN fields you want to sign
         const args = [
@@ -600,8 +575,45 @@ describe('sign', () => {
         expect(fullOpReturnFields[10]).to.eql('00')
         expect(fullOpReturnFields[11]).to.eql('01')
         expect(fullOpReturnFields[12]).to.eql('02')
-        const verified = index.verifyAuthorIdentity(fullOpReturnFields);
-        expect(verified).to.eql(true);
+        const verified = index.verifyAuthorIdentity(fullOpReturnFields, [address]);
+        expect(verified.verified).to.eql(true);
+    });
+
+    it('#verifyAuthorIdentity success with OP_RETURN string', async () => {
+
+        const opReturnStr = "31394878696756345179427633744870515663554551797131707a5a56646f417574 7b226e616d65223a226d796e616d65222c2262696f223a223c703e62696f3c2f703e5c6e222c226c6f676f223a22227d 6170706c69636174696f6e2f6a736f6e 7574662d38 6d61747465722d70726f66696c652d7570646174652e6a736f6e 7c 314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f 6d61747465722d7570646174652d70726f66696c65 623a2f2f37393566363662383238383038396465363365636463356661313239323330663837613732663130656336633764333137383330366439613861366365666161236d61747465722d736368656d612d70726f66696c652d64726166742d303123 7c 313550636948473232534e4c514a584d6f5355615756693757537163376843667661 312e302e30 4543445341 31455868536247466945415a4345356565427655785436634256486872705057587a 1c4bc53c3bf17190e496f7bd14bcfafd0ba9d8f688e601a35be4d078919caff5506cec47598e7c8064941b7ce72fdf61ba949ab5b90f271a0109945fd3f10b102e 0a 0a 00 01 02 03 04 05 06 07 08 09";
+        const opReturnArr = opReturnStr.split(' ');
+        const verified = index.verifyAuthorIdentity(opReturnArr, [address]);
+
+        expect(verified.verified).to.eql(true);
+        expect(verified.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
+    });
+
+    it('#verifyAuthorIdentity success with OP_RETURN string comparison', async () => {
+
+        const opReturnStr = "31394878696756345179427633744870515663554551797131707a5a56646f417574 7b226e616d65223a2261222c2262696f223a223c703e623c2f703e5c6e222c226c6f676f223a22227d 6170706c69636174696f6e2f6a736f6e 7574662d38 6d61747465722e70726f66696c652e6a736f6e 7c 314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f 312e302e30 7c 3150755161374b36324d694b43747373534c4b79316b683536575755374d74555235 534554 656e74697479 6d61747465722e70726f66696c65 76 01 74696d657374616d70 31353532373634353938 7c 313550636948473232534e4c514a584d6f5355615756693757537163376843667661 312e302e30 4543445341 31455868536247466945415a4345356565427655785436634256486872705057587a 1b517b5249b38572f18c9816f776f2006cd2bec6697f5c13f251047227f8cc7f243d0ef47fa76f294dcf5aac9853c1695a0d1531934786d98f112e59f9b99301fc 12 12 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11";
+        const opReturnArr = opReturnStr.split(' ');
+        const verified = index.verifyAuthorIdentity(opReturnArr, [address]);
+
+        expect(verified.verified).to.eql(true);
+        expect(verified.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
+
+        const opReturnArrayTest = [
+            "31394878696756345179427633744870515663554551797131707a5a56646f417574",
+            "7b226e616d65223a2261222c2262696f223a223c703e623c2f703e5c6e222c226c6f676f223a22227d",
+            "6170706c69636174696f6e2f6a736f6e", "7574662d38", "6d61747465722e70726f66696c652e6a736f6e", "7c",
+            "314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f", "312e302e30", "7c",
+             "3150755161374b36324d694b43747373534c4b79316b683536575755374d74555235", "534554", "656e74697479",
+             "6d61747465722e70726f66696c65", "76", "01", "74696d657374616d70", "31353532373634353938", "7c",
+             "313550636948473232534e4c514a584d6f5355615756693757537163376843667661", "312e302e30",
+             "4543445341", "31455868536247466945415a4345356565427655785436634256486872705057587a",
+             "1b517b5249b38572f18c9816f776f2006cd2bec6697f5c13f251047227f8cc7f243d0ef47fa76f294dcf5aac9853c1695a0d1531934786d98f112e59f9b99301fc",
+             "12", "12", "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f", "10", "11"];
+
+        expect(opReturnArr).to.eql(opReturnArrayTest);
+        const verified2 = index.verifyAuthorIdentity(opReturnArrayTest, [address]);
+        expect(verified2.verified).to.eql(true);
+        expect(verified2.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
     });
 
 })

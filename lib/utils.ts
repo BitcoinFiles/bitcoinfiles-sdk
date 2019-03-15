@@ -6,13 +6,18 @@ bsv.Message = bsvMessage;
 declare var Buffer;
 const authorIdentityPrefix = '15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva';
 
+export interface VerificationResult {
+    verified: boolean;
+    addresses: Array<{ address: string, verified: boolean }>
+};
+
 export class Utils {
     static isHex(str: string): boolean{
         return /^[0-9A-F]+$/i.test(str);
     }
 
     /**
-     *  Sign the arguments for the indexes provided, or sign them all
+     * Sign the arguments for the indexes provided, or sign them all
      * @param payload
      */
     static signArguments(payload: { args: any[], address: string, key: string, indexes: number[] }): string {
@@ -124,70 +129,70 @@ export class Utils {
         return constructed;
     }
 
-    static validateAuthorIdentityOccurenceAtPos(args: any[], pos: number): boolean {
+    static validateAuthorIdentityOccurenceAtPos(args: any[], pos: number): {valid: boolean, address?: string, signature?: string} {
         if (!args[pos]) {
-            return false;
+            return {valid: false};
         }
         // Enforce versions and positions
         const versionStringPos = 1;
         if (!args[pos + versionStringPos] || Buffer.from(args[pos + versionStringPos], 'hex').toString() !== '1.0.0') {
-            return false;
+            return {valid: false};
         }
         const algorithmSchemePos = 2;
         if (!args[pos + algorithmSchemePos] || Buffer.from(args[pos + algorithmSchemePos], 'hex').toString() !== 'ECDSA') {
-            return false;
+            return {valid: false};
         }
 
         const addressPos = 3;
         if (!args[pos + addressPos]) {
-            return false;
+            return {valid: false};
         }
         const address = Buffer.from(args[pos + addressPos], 'hex').toString();
         const signaturePos = 4;
         if (!args[pos + signaturePos]) {
-            return false;
+            return {valid: false};
         }
         const signature = Buffer.from(args[pos + signaturePos], 'hex').toString('base64');
 
         const offsetPos = 5;
         if (!args[pos + offsetPos]) {
-            return false;
+            return {valid: false};
         }
         const offset = parseInt(args[pos + offsetPos], 16);
 
         const indexCountPos = 6;
         if (!args[pos + indexCountPos]) {
-            return false;
+            return {valid: false};
         }
         const indexCount = parseInt(args[pos + indexCountPos], 16);
 
         if (offset <= 0 || indexCount <= 0) {
-            return false;
+            return {valid: false};
         }
 
         const fieldIndexesForSignature: any[] = [];
         for (let indexIter = 1;  indexIter <= indexCount; indexIter++) {
             if ((pos + indexCountPos + indexIter) < 0) {
-                return false;
+                return {valid: false};
             }
             if ((pos + indexCountPos + indexIter) >= args.length) {
-                return false;
+                return {valid: false};
             }
             if (!args[pos + indexCountPos + indexIter]) {
-                return false;
+                return {valid: false};
             }
             fieldIndexesForSignature.push(parseInt(args[pos + indexCountPos + indexIter], 16));
         }
         const fieldsToSign: any[] = [];
         for (const index of fieldIndexesForSignature) {
             if ((pos - offset + index) < 0) {
-                return false;
+                return {valid: false};
             }
             if ((pos - offset + index) >= args.length) {
-                return false;
+                return {valid: false};
             }
             if (!args[pos - offset + index]) {
-                return false;
+                return {valid: false};
             }
             fieldsToSign.push(args[pos - offset + index]);
         }
@@ -197,26 +202,46 @@ export class Utils {
             bufWriter.write(bf);
         }
         const appData = bufWriter.toBuffer();
-        try {
+        //try {
             const verified = bsv.Message(appData).verify(address, signature);
             if (verified) {
-               return true;
+               return {valid: true, address: address, signature: signature};
             }
-        } catch (ex) {
+        // } catch (ex) {
             // Fail silently
             // todo: add debug/verbose mode in future
-        }
-        return false;
+            // console.log('ex', ex);
+        /// }
+        return {valid: false};
     }
 
     /**
-     *
-     * @param args Args of OP_RETURN (hex encoded with optional leading '0x'
+     * @param args Args of OP_RETURN (hex encoded with optional leading '0x')
+     * @param expectedAuthorAddresses Single address or array addresses that are expected to sign in order
      */
-    static verifyAuthorIdentity(args: any[], include0x: boolean = true): boolean {
+    static verifyAuthorIdentity(args: any[], expectedAuthorAddresses: string[] | string): VerificationResult {
+        if (!expectedAuthorAddresses) {
+            throw new Error('expectedAuthorAddresses required')
+        }
+        if (!Array.isArray(expectedAuthorAddresses)) {
+            expectedAuthorAddresses = [expectedAuthorAddresses];
+        } else if (!expectedAuthorAddresses.length) {
+            throw new Error('expectedAuthorAddresses required')
+        }
+        const verificationResult: VerificationResult = {
+            verified: false,
+            addresses: []
+        };
+        for (const expectedAddress of expectedAuthorAddresses) {
+            verificationResult.addresses.push({
+                address: expectedAddress,
+                verified: false
+            });
+        }
         let signaturesFound = 0;
         let signaturesMatched = 0;
         let verifiedAtLeastOne = false;
+        let expectingSignatureIndex = 0;
         // Remove any '0x' prefix if present
         const cleanedArgs: any[] = [];
         for (const arg of args) {
@@ -237,16 +262,29 @@ export class Utils {
             }
             const decodedField = Buffer.from(currentFieldValue, 'hex');
             if (authorIdentityPrefix == decodedField) {
-                signaturesFound++;
-                const validated = Utils.validateAuthorIdentityOccurenceAtPos(cleanedArgs, scanPrefixCounter);
-                if (validated) {
-                    verifiedAtLeastOne = true;
-                    signaturesMatched++;
+                const result = Utils.validateAuthorIdentityOccurenceAtPos(cleanedArgs, scanPrefixCounter);
+
+                if (!result.valid) {
+                   return verificationResult;
+                }
+
+                if (result.address === verificationResult.addresses[expectingSignatureIndex].address) {
+                    verificationResult.addresses[expectingSignatureIndex].verified = true;
+                    expectingSignatureIndex++;
                 } else {
-                    return false;
+                    return verificationResult;
                 }
             }
         }
-        return verifiedAtLeastOne && signaturesFound > 0 && signaturesFound === signaturesMatched;
+        let foundVerified = 0;
+        for (const i of verificationResult.addresses) {
+            if (!i.verified) {
+                return verificationResult;
+            } else {
+                foundVerified++;
+            }
+        }
+        verificationResult.verified = verificationResult.addresses.length === foundVerified;
+        return verificationResult;
     }
 }

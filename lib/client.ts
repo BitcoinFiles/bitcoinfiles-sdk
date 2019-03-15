@@ -39,7 +39,8 @@ export class Client {
     }
     private hexEncode(str: string): string {
         function buf2hex(buffer: any): any {
-          return Array.prototype.map.call(new Uint8Array(buffer), (x: any) => ('00' + x.toString(16)).slice(-2)).join('');
+          const hexStr = Array.prototype.map.call(new Uint8Array(buffer), (x: any) => ('00' + x.toString(16)).slice(-2)).join('');
+          return hexStr.toLowerCase();
         }
         const checkHexPrefixRegex = /^0x(.*)/i;
         const match = checkHexPrefixRegex.exec(str);
@@ -158,7 +159,7 @@ export class Client {
                 }, callback);
             }
             try {
-                let query = this.baseQuery(-1, 0, 0);
+                let query = this.baseQuery(-1, 0, 0, 'blk.i');
                 query = this.addFindClause(query, 'tx.h', txid);
 
                 axios.get(
@@ -213,7 +214,8 @@ export class Client {
         skip?: number,
         limit?: number,
         sort?: -1 | 1,
-        debug?: boolean
+        debug?: boolean,
+        sortField?: string
     }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!request) {
@@ -223,11 +225,11 @@ export class Client {
                 }, callback);
             }
             try {
-
                 let sort = request.sort ? request.sort : -1;
                 let limit = request.limit ? request.limit : 1;
                 let skip = request.skip ? request.skip : 0;
-                let query = this.baseQuery(sort, limit, skip);
+                let sortField = request.sortField ? request.sortField : 'blk.i';
+                let query = this.baseQuery(sort, limit, skip, sortField);
 
                 if (request.address) {
                     query = this.addFindClause(query, 'in.e.a', request.address);
@@ -246,8 +248,18 @@ export class Client {
                             tagStartIndex++;
                             continue;
                         }
-                        let tagField = 'out.s' + tagStartIndex;
-                        query = this.addFindClause(query, tagField, tag);
+                        // If the value is prefixed with '0x' then we know it's hex
+                        // Otherwise treat it as a string
+                        const checkHexPrefixRegex = /^0x(.*)/i;
+                        let tagField = 'out.s';
+                        let tagValue = tag;
+                        const match = checkHexPrefixRegex.exec(tag);
+                        if (match && match[1]) {
+                            tagField = 'out.h'
+                            tagValue = match[1];
+                        }
+                        tagField += tagStartIndex;
+                        query = this.addFindClause(query, tagField, tagValue);
                         tagStartIndex++;
                     }
                 }
@@ -302,7 +314,7 @@ export class Client {
         });
     }
 
-    private baseQuery(sort: number = -1, limit: number = 1, skip: number = 0): any {
+    private baseQuery(sort: number = -1, limit: number = 1, skip: number = 0, sortField: string = 'blk.i'): any {
         return {
             "v": 3,
             "q": {
@@ -310,7 +322,7 @@ export class Client {
                 },
                 "limit": limit,
                 "skip": skip,
-                "sort": { "blk.i": sort}
+                "sort": { [sortField]: sort}
             },
             "r": {
                 "f": "[.[] | { txid: .tx.h, inputInfo: . | { in: .in? }, blockInfo: . | { blockIndex: .blk.i?, blockTime: .blk.t?}, out: .out  } ]"

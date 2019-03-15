@@ -263,6 +263,31 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
 
 ```
 
+
+*Find most recent file updates that has MAP keys and values of files named 'hello.txt' sorted by the out.s8 field in Planaria bitdb*
+
+```javascript
+  var result = await bitcoinfiles.find({
+      name: "hello.txt",
+      sort: -1,
+      sortField: 'out.s8'
+  });
+  console.log(result);
+  /*
+  {
+      success: true,
+      data: [
+              {
+                  txid: '...',
+                  url: '...'
+              }
+          ]
+  }
+  */
+
+```
+
+
 ## Build  and Test
 
 ```
