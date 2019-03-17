@@ -97,7 +97,7 @@ export class Utils {
     static buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes: number[] }, include0x: boolean = true): Array<string> {
         const signature = Utils.signArguments(payload);
         function toHex(d) {
-            return  ("0"+(Number(d).toString(16))).slice(-2).toUpperCase()
+            return  ("0"+(Number(d).toString(16))).slice(-2).toLowerCase();
         }
         let indexes: any = payload.indexes;
         if (!payload.indexes || payload.indexes.length == 0) {
