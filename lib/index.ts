@@ -42,7 +42,8 @@ export function find(request: {
   tags?: string[],
   offset?: number,
   limit?: number,
-  sort?: -1 | 1
+  sort?: -1 | 1,
+  sortField?: string
 }, callback?: Function, options?: any): Promise<any> {
   const client = new Client(options);
   return client.find(request, callback);

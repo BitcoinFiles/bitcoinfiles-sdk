@@ -616,4 +616,20 @@ describe('sign', () => {
         expect(verified2.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
     });
 
+    it('#verifyAuthorIdentity success with OP_RETURN string comparison', async () => {
+
+        const opReturnArr = [
+            "0x31394878696756345179427633744870515663554551797131707a5a56646f417574",
+            "0x7b226e616d65223a226173646661736466222c2262696f223a22222c226c6f676f223a22227d",
+            "0x6170706c69636174696f6e2f6a736f6e",
+            "0x7574662d38", "0x6d61747465722e70726f66696c652e6a736f6e",
+            "0x7c", "0x314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f",
+            "0x312e302e30", "0x7c", "0x3150755161374b36324d694b43747373534c4b79316b683536575755374d74555235",
+            "0x534554", "0x656e74697479", "0x6d61747465722e70726f66696c65", "0x76", "0x01", "0x74696d657374616d70", "0x3563386537613634", "0x7c", "0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661", "0x312e302e30", "0x4543445341", "0x31455868536247466945415a4345356565427655785436634256486872705057587a", "0x1b1f7f61e8f46bc8aacd9ba624fad8b1c7eaaa9fc836533e04096d4ec17f39f1976fdb557bd9d23a676aab7c4bc5d72d8c57be374a512b6cc9f84d12fe80524365", "0x12", "0x12", "0x00", "0x01", "0x02", "0x03", "0x04", "0x05", "0x06", "0x07", "0x08", "0x09", "0x0a", "0x0b", "0x0c", "0x0d", "0x0e", "0x0f", "0x10", "0x11"];
+        const verified = index.verifyAuthorIdentity(opReturnArr, [address]);
+
+        expect(verified.verified).to.eql(true);
+        expect(verified.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
+
+    });
 })
