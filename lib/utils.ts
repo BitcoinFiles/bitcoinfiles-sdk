@@ -8,7 +8,12 @@ const authorIdentityPrefix = '15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva';
 
 export interface VerificationResult {
     verified: boolean;
-    addresses: Array<{ address: string, verified: boolean }>
+    addresses: Array<{
+        address: string,
+        verified: boolean,
+        pos?: number,
+        fieldIndexesForSignature?: number[]
+    }>;
 };
 
 export class Utils {
@@ -20,7 +25,7 @@ export class Utils {
      * Sign the arguments for the indexes provided, or sign them all
      * @param payload
      */
-    static signArguments(payload: { args: any[], address: string, key: string, indexes: number[] }): string {
+    static signArguments(payload: { args: any[], address: string, key: string, indexes?: number[]}): string {
         if (!payload) {
             throw new Error('insufficient indexes');
         }
@@ -55,7 +60,9 @@ export class Utils {
                     selectedArg = '00';
                 }
                 if (!Utils.isHex(selectedArg)) {
-                    throw new Error('string must be hex encoded');
+                    // Force string to hex...
+                    // throw new Error('string must be hex encoded');
+                    selectedArg = Buffer.from(selectedArg).toString('hex');
                 }
                 selectedArg = Buffer.from(selectedArg, 'hex');
             } else if (Buffer.isBuffer(selectedArg)) {
@@ -94,7 +101,7 @@ export class Utils {
      * @param payload
      * @param include0x Whether to include '0x' in the outpout of each hex string or not
      */
-    static buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes: number[] }, include0x: boolean = true): Array<string> {
+    static buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes?: number[] }): Array<string> {
         const signature = Utils.signArguments(payload);
         function toHex(d) {
             return  ("0"+(Number(d).toString(16))).slice(-2).toLowerCase();
@@ -104,63 +111,58 @@ export class Utils {
             indexes = [...Array(payload.args.length).keys()];
         }
         for (let count = 0; count < indexes; count++) {
-            indexes[count] = include0x ? '0x' + toHex(indexes[count]) : toHex(indexes[count]);
+            indexes[count] = '0x' + toHex(indexes[count]);
         }
         let indexesCount = indexes.length;
-        indexesCount = include0x ? '0x' + toHex(indexesCount) : toHex(indexesCount);
+        indexesCount = '0x' + toHex(indexesCount);
 
         const constructed = [
-            (include0x ? '0x' : '') + Buffer.from(authorIdentityPrefix).toString('hex'),
-            (include0x ? '0x' : '') + Buffer.from('1.0.0').toString('hex'),
-            (include0x ? '0x' : '') + Buffer.from('ECDSA').toString('hex'),
-            (include0x ? '0x' : '') + Buffer.from(payload.address).toString('hex'),
-            (include0x ? '0x' : '') + Buffer.from(signature, 'base64').toString('hex')
+            '0x' + Buffer.from(authorIdentityPrefix).toString('hex'),
+            '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
+            '0x' + Buffer.from(payload.address).toString('hex'),
+            '0x' + Buffer.from(signature, 'base64').toString('hex')
         ];
 
         let negativeOffset = payload.args.length;
-        let negativeOffsetStr = include0x ? '0x' + toHex(negativeOffset) : toHex(negativeOffset)
+        let negativeOffsetStr = '0x' + toHex(negativeOffset);
 
         constructed.push(negativeOffsetStr);
         constructed.push(indexesCount);
         for (const index of indexes) {
-            const indexStr = include0x ? '0x' + toHex(index) : toHex(index);
+            const indexStr = '0x' + toHex(index);
             constructed.push(indexStr);
         }
         return constructed;
     }
 
-    static validateAuthorIdentityOccurenceAtPos(args: any[], pos: number): {valid: boolean, address?: string, signature?: string} {
+    static validateAuthorIdentityOccurenceAtPos(args: any[], pos: number): {valid: boolean, address?: string, signature?: string, pos?: number, fieldIndexesForSignature?: number[]} {
         if (!args[pos]) {
             return {valid: false};
         }
-        // Enforce versions and positions
-        const versionStringPos = 1;
-        if (!args[pos + versionStringPos] || Buffer.from(args[pos + versionStringPos], 'hex').toString() !== '1.0.0') {
-            return {valid: false};
-        }
-        const algorithmSchemePos = 2;
-        if (!args[pos + algorithmSchemePos] || Buffer.from(args[pos + algorithmSchemePos], 'hex').toString() !== 'ECDSA') {
+        // Enforce positions
+        const algorithmSchemePos = 1;
+        if (!args[pos + algorithmSchemePos] || Buffer.from(args[pos + algorithmSchemePos], 'hex').toString() !== 'BITCOIN_ECDSA') {
             return {valid: false};
         }
 
-        const addressPos = 3;
+        const addressPos = 2;
         if (!args[pos + addressPos]) {
             return {valid: false};
         }
         const address = Buffer.from(args[pos + addressPos], 'hex').toString();
-        const signaturePos = 4;
+        const signaturePos = 3;
         if (!args[pos + signaturePos]) {
             return {valid: false};
         }
         const signature = Buffer.from(args[pos + signaturePos], 'hex').toString('base64');
 
-        const offsetPos = 5;
+        const offsetPos = 4;
         if (!args[pos + offsetPos]) {
             return {valid: false};
         }
         const offset = parseInt(args[pos + offsetPos], 16);
 
-        const indexCountPos = 6;
+        const indexCountPos = 5;
         if (!args[pos + indexCountPos]) {
             return {valid: false};
         }
@@ -205,7 +207,13 @@ export class Utils {
         //try {
             const verified = bsv.Message(appData).verify(address, signature);
             if (verified) {
-               return {valid: true, address: address, signature: signature};
+               return {
+                   valid: true,
+                   address: address,
+                   signature: signature,
+                   pos: pos,
+                   fieldIndexesForSignature: fieldIndexesForSignature
+                };
             }
         // } catch (ex) {
             // Fail silently
@@ -238,9 +246,6 @@ export class Utils {
                 verified: false
             });
         }
-        let signaturesFound = 0;
-        let signaturesMatched = 0;
-        let verifiedAtLeastOne = false;
         let expectingSignatureIndex = 0;
         // Remove any '0x' prefix if present
         const cleanedArgs: any[] = [];
@@ -263,13 +268,15 @@ export class Utils {
             const decodedField = Buffer.from(currentFieldValue, 'hex');
             if (authorIdentityPrefix == decodedField) {
                 const result = Utils.validateAuthorIdentityOccurenceAtPos(cleanedArgs, scanPrefixCounter);
-
                 if (!result.valid) {
                    return verificationResult;
                 }
+                if (verificationResult.addresses[expectingSignatureIndex] &&
+                    result.address === verificationResult.addresses[expectingSignatureIndex].address) {
 
-                if (result.address === verificationResult.addresses[expectingSignatureIndex].address) {
                     verificationResult.addresses[expectingSignatureIndex].verified = true;
+                    verificationResult.addresses[expectingSignatureIndex].pos = result.pos;
+                    verificationResult.addresses[expectingSignatureIndex].fieldIndexesForSignature = result.fieldIndexesForSignature;
                     expectingSignatureIndex++;
                 } else {
                     return verificationResult;

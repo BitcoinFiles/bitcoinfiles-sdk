@@ -19,14 +19,37 @@ export function getFileUrl(url: string, fileHostBase = 'https://media.bitcoinfil
 }
 
 /**
+ * Build a Bitcoin Data File create request
+ * @param request Request to create a file
+ * @param callback Optional callback to invoke
+ * @param options Options override
+ */
+export function buildFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function, options?: any): Promise<any> {
+  const client = new Client(options);
+  return client.buildFile(request, callback);
+}
+
+
+/**
  * Create a Bitcoin Data File
  * @param request Request to create a file
  * @param callback Optional callback to invoke
  * @param options Options override
  */
-export function createFile(request: { file: FileData, pay: { key: string } }, callback?: Function, options?: any): Promise<any> {
+export function createFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function, options?: any): Promise<any> {
   const client = new Client(options);
   return client.create(request, callback);
+}
+
+/**
+ * Datapay wrapper
+ * @param request Request to datapay
+ * @param callback Optional callback to invoke
+ * @param options Options override
+ */
+export function datapay(request: { data: any[], pay: { key: string }}, callback?: Function, options?: any): Promise<any> {
+  const client = new Client(options);
+  return client.datapay(request, callback);
 }
 
 /**
@@ -71,10 +94,9 @@ export function signArguments(payload: { args: any[], address: string, key: stri
 /**
  * Build an array of hex strings representing the AUTHOR_IDENTITY protocol
  * @param payload
- * @param include0x Whether to return 0x or not at the end
  */
-export function buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes: number[] }, include0x?: boolean): Array<string> {
-  return Utils.buildAuthorIdentity(payload, include0x);
+export function buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes: number[] }): Array<string> {
+  return Utils.buildAuthorIdentity(payload);
 }
 
 /**

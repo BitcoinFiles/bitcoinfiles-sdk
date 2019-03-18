@@ -1,8 +1,10 @@
 import * as datapay from 'datapay';
+import * as bsv from 'bsv';
 import axios from 'axios';
 import { FileData } from './models/file-data.interface';
 declare var Buffer: any;
 import * as textEncoder from 'text-encoder';
+import { Utils } from './utils';
 
 function buf2hex(buffer: any) {
   return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('')
@@ -48,7 +50,7 @@ export class Client {
             return str;
         } else {
             let enc = new textEncoder.TextEncoder().encode(str);
-            return '0x' + buf2hex(enc)
+            return buf2hex(enc)
         }
     }
 
@@ -64,7 +66,67 @@ export class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
-    create(request: { file: FileData, pay: { key: string } }, callback?: Function): Promise<any> {
+    async create(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
+        const buildResult = await this.buildFile(request);
+        if (!buildResult.success) {
+            return new Promise((resolve) => {
+                this.callbackAndResolve(resolve, {
+                    success: false,
+                    message: buildResult.message
+                }, callback);
+            });
+        }
+        const newArgs: string[] = [];
+        for (const i of buildResult.data) {
+            const checkHexPrefixRegex = /^0x(.*)/i;
+            const match = checkHexPrefixRegex.exec(i);
+            if (match && match[1]) {
+                newArgs.push(i);
+            } else {
+                newArgs.push('0x' + i);
+            }
+        }
+        return this.datapay({
+            data: newArgs,
+            pay: request.pay,
+        }, callback);
+    }
+
+    /**
+     *
+     * @param request create request
+     * @param callback Optional callback to invoke after completed
+     */
+    datapay(request: { data: any[], pay: { key: string }}, callback?: Function): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            datapay.send({
+                data: request.data,
+                pay: {
+                    key: request.pay.key,
+                }
+            }, async (err: any, transaction: any) => {
+                if (err) {
+                    console.log('err', err);
+                    return this.callbackAndResolve(resolve, {
+                        success: false,
+                        message: err.message ? err.message : err.toString()
+                    }, callback);
+                }
+                return this.callbackAndResolve(resolve, {
+                    success: true,
+                    txid: transaction
+                }, callback)
+            })
+        });
+    }
+
+    /**
+     * Builds the file and returns the parameters to send to datapay
+     *
+     * @param request create request
+     * @param callback Optional callback to invoke after completed
+     */
+    buildFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!request.pay || !request.pay.key || request.pay.key === '') {
                 return this.callbackAndResolve(resolve, {
@@ -103,38 +165,51 @@ export class Client {
                 } else {
                     content = request.file.content
                 }
-                const args = [
-                    "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut",
-                    content,
-                    this.hexEncode(request.file.contentType),
-                    this.hexEncode(encoding)
+                let args = [
+                    '0x' + Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut").toString('hex'),
+                    '0x' + content,
+                    '0x' + this.hexEncode(request.file.contentType),
+                    '0x' + this.hexEncode(encoding)
                 ];
 
-                if (request.file && (request.file.name && request.file.name !== '' || (request.file.tags && request.file.tags.length))) {
+                const hasFileName = request.file.name && request.file.name !== '';
+                if (request.file && (hasFileName || (request.file.tags && request.file.tags.length))) {
                     let filename = request.file.name ? request.file.name : '';
-                    args.push(this.hexEncode(filename));
+                    args.push('0x' + this.hexEncode(filename));
                     if (request.file.tags) {
                         request.file.tags.map((tag) => args.push(this.hexEncode(tag)));
                     }
                 }
-                datapay.send({
+
+                // Attach signatures if they are provided
+                if (request.signatures && Array.isArray(request.signatures)) {
+                    if (!hasFileName) {
+                        // We must attach a blank or empty filename if we want a signature
+                        args.push('0x00');
+                    }
+                    for (const signatureKey of request.signatures) {
+                        if (!signatureKey.key || /^\s*$/.test(signatureKey.key)) {
+                            return this.callbackAndResolve(resolve, {
+                                success: false,
+                                message: 'signature key required'
+                            }, callback);
+                        }
+                        const identityPrivateKey = new bsv.PrivateKey(signatureKey.key);
+                        const identityAddress = identityPrivateKey.toAddress().toLegacyAddress();
+                        args.push('0x' + Buffer.from('|').toString('hex'));
+                        const opReturnHexArray = Utils.buildAuthorIdentity({
+                            args: args,
+                            address: identityAddress,
+                            key: signatureKey.key
+                        });
+                        args = args.concat(opReturnHexArray);
+                    }
+                }
+                return this.callbackAndResolve(resolve, {
+                    success: true,
                     data: args,
-                    pay: {
-                        key: request.pay.key,
-                    }
-                }, async (err: any, transaction: any) => {
-                    if (err) {
-                        console.log('err', err);
-                        return this.callbackAndResolve(resolve, {
-                            success: false,
-                            message: err.message ? err.message : err.toString()
-                        }, callback);
-                    }
-                    return this.callbackAndResolve(resolve, {
-                        success: true,
-                        txid: transaction
-                    }, callback)
-                })
+                }, callback);
+
             } catch (ex) {
                 console.log('ex', ex);
                 this.callbackAndResolve(resolve, {

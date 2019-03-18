@@ -106,15 +106,6 @@ describe('sign', () => {
                 indexes: [0]
             });
         }).to.throw(Error);
-        expect(function() {
-            index.signArguments({
-                args: ['-'],
-                address: address,
-                key: privateKey,
-                indexes: [0]
-            });
-        }).to.throw(Error);
-
     });
 
     it('#signArguments should encode empty buffer', async () => {
@@ -277,8 +268,7 @@ describe('sign', () => {
 
         const expected = [
             '0x' + Buffer.from('15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva').toString('hex'),
-            '0x' + Buffer.from('1.0.0').toString('hex'),
-            '0x' + Buffer.from('ECDSA').toString('hex'),
+            '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x' + Buffer.from(address).toString('hex'),
             '0x' + Buffer.from(expectedSignature, 'base64').toString('hex'),
             '0x07', // relative negative index
@@ -327,8 +317,7 @@ describe('sign', () => {
 
      const expected = [
             '0x' + Buffer.from('15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva').toString('hex'),
-            '0x' + Buffer.from('1.0.0').toString('hex'),
-            '0x' + Buffer.from('ECDSA').toString('hex'),
+            '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x' + Buffer.from(address).toString('hex'),
             '0x' + Buffer.from(expectedSignature, 'base64').toString('hex'),
             '0x07', // relative negative index
@@ -350,8 +339,7 @@ describe('sign', () => {
             '00',
             Buffer.from('|').toString('hex'),
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
-            '0x312e302e30',
-            '0x4543445341',
+            Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
             '0x1cea8eb97421f79a3c672acd8be81847c3344559b22e31523ec4b8b57047d561910cac077a71c57f7ec06da6a44a3e3936a530e95f87cdc097ccf40bf6d31c18e7',
             '0x07',
@@ -374,8 +362,7 @@ describe('sign', () => {
             '00',
             Buffer.from('|').toString('hex'),
             '313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
-            '312e302e30',
-            '4543445341',
+            Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '31455868536247466945415a4345356565427655785436634256486872705057587a',
             '1cea8eb97421f79a3c672acd8be81847c3344559b22e31523ec4b8b57047d561910cac077a71c57f7ec06da6a44a3e3936a530e95f87cdc097ccf40bf6d31c18e7',
             '07',
@@ -410,8 +397,7 @@ describe('sign', () => {
             '00',
             Buffer.from('|').toString('hex'),
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
-            '0x312e302e30',
-            '0x4543445341',
+            Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
             '0x1cea8eb97421f79a3c672acd8be81847c3344559b22e31523ec4b8b57047d561910cac077a71c57f7ec06da6a44a3e3936a530e95f87cdc097ccf40bf6d31c18e7',
             '0x07',
@@ -455,8 +441,7 @@ describe('sign', () => {
             '00',
             Buffer.from('|').toString('hex'),
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
-            '0x312e302e30',
-            '0x4543445341',
+            Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
             '0x0cea8eb97421f79a3c672acd8be81847c3344559b22e31523ec4b8b57047d561910cac077a71c57f7ec06da6a44a3e3936a530e95f87cdc097ccf40bf6d31c18e7',
             '0x07',
@@ -503,8 +488,7 @@ describe('sign', () => {
         });
         const expected = [
             '0x' + Buffer.from('15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva').toString('hex'),
-            '0x' + Buffer.from('1.0.0').toString('hex'),
-            '0x' + Buffer.from('ECDSA').toString('hex'),
+            '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x' + Buffer.from(address).toString('hex'),
             '0x' + Buffer.from(expectedSignature, 'base64').toString('hex'),
             '0x07', // relative negative index
@@ -567,69 +551,15 @@ describe('sign', () => {
             key: privateKey
         }, false);
         const fullOpReturnFields = args.concat(opReturnHexArray);
-        expect(fullOpReturnFields[3]).to.eql('313550636948473232534e4c514a584d6f5355615756693757537163376843667661')
-        expect(fullOpReturnFields[4]).to.eql('312e302e30')
-        expect(fullOpReturnFields[5]).to.eql('4543445341')
-        expect(fullOpReturnFields[8]).to.eql('03')
-        expect(fullOpReturnFields[9]).to.eql('03')
-        expect(fullOpReturnFields[10]).to.eql('00')
-        expect(fullOpReturnFields[11]).to.eql('01')
-        expect(fullOpReturnFields[12]).to.eql('02')
+        expect(fullOpReturnFields[3]).to.eql('0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661')
+        expect(fullOpReturnFields[4]).to.eql('0x424954434f494e5f4543445341')
+        expect(fullOpReturnFields[7]).to.eql('0x03')
+        expect(fullOpReturnFields[8]).to.eql('0x03')
+        expect(fullOpReturnFields[9]).to.eql('0x00')
+        expect(fullOpReturnFields[10]).to.eql('0x01')
+        expect(fullOpReturnFields[11]).to.eql('0x02')
         const verified = index.verifyAuthorIdentity(fullOpReturnFields, [address]);
         expect(verified.verified).to.eql(true);
     });
-
-    it('#verifyAuthorIdentity success with OP_RETURN string', async () => {
-
-        const opReturnStr = "31394878696756345179427633744870515663554551797131707a5a56646f417574 7b226e616d65223a226d796e616d65222c2262696f223a223c703e62696f3c2f703e5c6e222c226c6f676f223a22227d 6170706c69636174696f6e2f6a736f6e 7574662d38 6d61747465722d70726f66696c652d7570646174652e6a736f6e 7c 314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f 6d61747465722d7570646174652d70726f66696c65 623a2f2f37393566363662383238383038396465363365636463356661313239323330663837613732663130656336633764333137383330366439613861366365666161236d61747465722d736368656d612d70726f66696c652d64726166742d303123 7c 313550636948473232534e4c514a584d6f5355615756693757537163376843667661 312e302e30 4543445341 31455868536247466945415a4345356565427655785436634256486872705057587a 1c4bc53c3bf17190e496f7bd14bcfafd0ba9d8f688e601a35be4d078919caff5506cec47598e7c8064941b7ce72fdf61ba949ab5b90f271a0109945fd3f10b102e 0a 0a 00 01 02 03 04 05 06 07 08 09";
-        const opReturnArr = opReturnStr.split(' ');
-        const verified = index.verifyAuthorIdentity(opReturnArr, [address]);
-
-        expect(verified.verified).to.eql(true);
-        expect(verified.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
-    });
-
-    it('#verifyAuthorIdentity success with OP_RETURN string comparison', async () => {
-
-        const opReturnStr = "31394878696756345179427633744870515663554551797131707a5a56646f417574 7b226e616d65223a2261222c2262696f223a223c703e623c2f703e5c6e222c226c6f676f223a22227d 6170706c69636174696f6e2f6a736f6e 7574662d38 6d61747465722e70726f66696c652e6a736f6e 7c 314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f 312e302e30 7c 3150755161374b36324d694b43747373534c4b79316b683536575755374d74555235 534554 656e74697479 6d61747465722e70726f66696c65 76 01 74696d657374616d70 31353532373634353938 7c 313550636948473232534e4c514a584d6f5355615756693757537163376843667661 312e302e30 4543445341 31455868536247466945415a4345356565427655785436634256486872705057587a 1b517b5249b38572f18c9816f776f2006cd2bec6697f5c13f251047227f8cc7f243d0ef47fa76f294dcf5aac9853c1695a0d1531934786d98f112e59f9b99301fc 12 12 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11";
-        const opReturnArr = opReturnStr.split(' ');
-        const verified = index.verifyAuthorIdentity(opReturnArr, [address]);
-
-        expect(verified.verified).to.eql(true);
-        expect(verified.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
-
-        const opReturnArrayTest = [
-            "31394878696756345179427633744870515663554551797131707a5a56646f417574",
-            "7b226e616d65223a2261222c2262696f223a223c703e623c2f703e5c6e222c226c6f676f223a22227d",
-            "6170706c69636174696f6e2f6a736f6e", "7574662d38", "6d61747465722e70726f66696c652e6a736f6e", "7c",
-            "314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f", "312e302e30", "7c",
-             "3150755161374b36324d694b43747373534c4b79316b683536575755374d74555235", "534554", "656e74697479",
-             "6d61747465722e70726f66696c65", "76", "01", "74696d657374616d70", "31353532373634353938", "7c",
-             "313550636948473232534e4c514a584d6f5355615756693757537163376843667661", "312e302e30",
-             "4543445341", "31455868536247466945415a4345356565427655785436634256486872705057587a",
-             "1b517b5249b38572f18c9816f776f2006cd2bec6697f5c13f251047227f8cc7f243d0ef47fa76f294dcf5aac9853c1695a0d1531934786d98f112e59f9b99301fc",
-             "12", "12", "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f", "10", "11"];
-
-        expect(opReturnArr).to.eql(opReturnArrayTest);
-        const verified2 = index.verifyAuthorIdentity(opReturnArrayTest, [address]);
-        expect(verified2.verified).to.eql(true);
-        expect(verified2.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
-    });
-
-    it('#verifyAuthorIdentity success with OP_RETURN string comparison', async () => {
-
-        const opReturnArr = [
-            "0x31394878696756345179427633744870515663554551797131707a5a56646f417574",
-            "0x7b226e616d65223a226173646661736466222c2262696f223a22222c226c6f676f223a22227d",
-            "0x6170706c69636174696f6e2f6a736f6e",
-            "0x7574662d38", "0x6d61747465722e70726f66696c652e6a736f6e",
-            "0x7c", "0x314d414565707a67576569367a4b6d627364515379387741594c35795344697a4b6f",
-            "0x312e302e30", "0x7c", "0x3150755161374b36324d694b43747373534c4b79316b683536575755374d74555235",
-            "0x534554", "0x656e74697479", "0x6d61747465722e70726f66696c65", "0x76", "0x01", "0x74696d657374616d70", "0x3563386537613634", "0x7c", "0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661", "0x312e302e30", "0x4543445341", "0x31455868536247466945415a4345356565427655785436634256486872705057587a", "0x1b1f7f61e8f46bc8aacd9ba624fad8b1c7eaaa9fc836533e04096d4ec17f39f1976fdb557bd9d23a676aab7c4bc5d72d8c57be374a512b6cc9f84d12fe80524365", "0x12", "0x12", "0x00", "0x01", "0x02", "0x03", "0x04", "0x05", "0x06", "0x07", "0x08", "0x09", "0x0a", "0x0b", "0x0c", "0x0d", "0x0e", "0x0f", "0x10", "0x11"];
-        const verified = index.verifyAuthorIdentity(opReturnArr, [address]);
-
-        expect(verified.verified).to.eql(true);
-        expect(verified.addresses).to.eql([{address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', verified: true}]);
-
-    });
 })
+

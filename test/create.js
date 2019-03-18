@@ -121,11 +121,33 @@ describe('create function test', () => {
         console.log('result', result);
         expect(result.success).to.equal(true);
     });
-
     */
 
-    /*
     // Uncomment this line to send a real transaction
+    /*
+    it('should return success created file utf-8 and signs it with a public key', async () => {
+        var createRequest = {
+            file: {
+                content: 'Hello world!',
+                contentType: 'text/plain',
+            },
+            pay: {
+                key: privateKey
+            },
+            signatures: [
+                {
+                    key: privateKey
+                }
+            ]
+        };
+        var result = await index.createFile(createRequest);
+        console.log('result', result);
+        expect(result.success).to.equal(true);
+    });
+    */
+
+    // Uncomment this line to send a real transaction
+    /*
     it('should return success created file utf-8 default', async () => {
         var createRequest = {
             file: {
@@ -145,5 +167,4 @@ describe('create function test', () => {
         expect(result.success).to.equal(true);
     });
     */
-
 });
