@@ -294,4 +294,50 @@ export class Utils {
         verificationResult.verified = verificationResult.addresses.length === foundVerified;
         return verificationResult;
     }
+
+    /**
+     * Detect and verify author identities
+     * @param args Args of OP_RETURN (hex encoded with optional leading '0x')
+     * @param expectedAuthorAddresses Single address or array addresses that are expected to sign in order
+     */
+    static detectAndVerifyAuthorIdentities(args: any[]): VerificationResult {
+        if (!args || !Array.isArray(args)) {
+            throw new Error('insufficient args');
+        }
+        const detectedAddresses: any[] = [];
+        // Remove any '0x' prefix if present
+        const cleanedArgs: any[] = [];
+        for (const arg of args) {
+            const checkHexPrefixRegex = /^0x(.*)/i;
+            let currentFieldValue = arg;
+            const match = checkHexPrefixRegex.exec(currentFieldValue);
+            if (match) {
+                currentFieldValue = match[1];
+            }
+            cleanedArgs.push(currentFieldValue);
+        }
+        for (let scanPrefixCounter = 0; scanPrefixCounter < cleanedArgs.length; scanPrefixCounter++) {
+            const checkHexPrefixRegex = /^0x(.*)/i;
+            let currentFieldValue = cleanedArgs[scanPrefixCounter];
+            const match = checkHexPrefixRegex.exec(currentFieldValue);
+            if (match) {
+                currentFieldValue = match[1];
+            }
+            const decodedField = Buffer.from(currentFieldValue, 'hex');
+            if (authorIdentityPrefix == decodedField) {
+                // There are not enough fields
+                if (cleanedArgs.length - 1 < scanPrefixCounter + 2) {
+                    throw new Error('insufficient fields');
+                }
+                detectedAddresses.push(Buffer.from(cleanedArgs[scanPrefixCounter + 2], 'hex').toString());
+            }
+        }
+        if (!detectedAddresses.length) {
+            return {
+                verified: false,
+                addresses: []
+            }
+        }
+        return this.verifyAuthorIdentity(args, detectedAddresses);
+    }
 }

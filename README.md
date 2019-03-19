@@ -10,7 +10,7 @@ Protocol Docs:
 - https://github.com/unwriter/B
 - https://github.com/BitcoinFiles/AUTHOR_IDENTITY_PROTOCOL
 
-**Easily create files and store it on Bitcoin SV blockchain: **
+*Easily create files and store it on Bitcoin SV blockchain: *
 
 ```javascript
   require('bitcoinfiles-sdk').createFile({
@@ -433,11 +433,12 @@ It can be broadcast via datapay or using the `bitcoinfiles.datapay` wrapper:
     */
 ```
 
-
 ### Verify Author Identity
 
 *Verify the Author Identity of an array of OP_RETURN fields*
 
+Note: You must provide the addresses that you expect the OP_RETURN to be signed by.
+If you want to auto-detect then use `detectAndVerifyAuthorIdentity` below.
 
 ```javascript
 var opReturnFields = [
@@ -484,6 +485,119 @@ console.log(verifySigResult);
     }
 */
 ```
+
+
+### Detect and Verify Author Identities
+
+*Detects and Verifies the Author Identities of an array of OP_RETURN fields*
+
+Note: Use this method when you do not know what the addresses that signed the data are.
+
+Special care must be taken to ensure that addresses you expect are present *and* that the `fieldIndexesForSignature`
+covers the relevant OP_RETURN fields that you care about.  If you do not check the fields that are signed then
+someone can sign a single field or re-use an old signature by the Identity and attempt to pass off a forgey.
+
+Therefore you must always check that the addresses are what you expect along with the field indexes that are important to establish the Identity and complete signing.
+
+
+```javascript
+var opReturnFields = [
+    '0x31394878696756345179427633744870515663554551797131707a5a56646f417574',
+    '0x48656c6c6f20776f726c6421',
+    '0x746578742f706c61696e',
+    '0x7574662d38',
+    '0x00',
+    '0x7c',
+    '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
+    '0x424954434f494e5f4543445341',
+    '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
+    '0x1c97ffc1a7231bd671df54bd1fa171bd764f22905adc3465753665b5f28e36b1f30a82503984d32175e6aca75fbc53a7f81b4bcd20c074984f5f071eb529fad2a3',
+    '0x06',
+    '0x06',
+    '0x00',
+    '0x01',
+    '0x02',
+    '0x03',
+    '0x04',
+    '0x05',
+    '0x7c',
+    '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
+    '0x424954434f494e5f4543445341',
+    '0x31396e6b6e4c68526e474b525233686f6265467575716d48554d694e544b5a487352',
+    '0x1b88faf24d32af9d50e200351bc808d6b01f3653b15a1f99cf9652704f95e7653a463ec95771b888e9878cc6425eafe4ef0e42c3b9f0b9572da6ab5af28a701974',
+    '0x13',
+    '0x13',
+    '0x00',
+    '0x01',
+    '0x02',
+    '0x03',
+    '0x04',
+    '0x05',
+    '0x06',
+    '0x07',
+    '0x08',
+    '0x09',
+    '0x0a',
+    '0x0b',
+    '0x0c',
+    '0x0d',
+    '0x0e',
+    '0x0f',
+    '0x10',
+    '0x11',
+    '0x12'
+];
+var result = await bitcoinfiles.detectAndVerifyAuthorIdentities(opReturnFields);
+console.log(result);
+
+/*
+    {
+        verified: true,
+        addresses: [
+            {
+                address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
+                verified: true,
+                fieldIndexesForSignature: [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                ],
+                pos: 6
+            },
+            {
+                address: '19nknLhRnGKRR3hobeFuuqmHUMiNTKZHsR',
+                verified: true,
+                fieldIndexesForSignature: [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18
+                ],
+                pos: 19
+            }
+        ]
+    }
+*/
+```
+
 
 ## Build and Test
 

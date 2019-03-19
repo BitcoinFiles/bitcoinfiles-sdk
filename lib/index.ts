@@ -108,5 +108,15 @@ export function verifyAuthorIdentity(args: any[], expectedAuthorAddresses: strin
   return Utils.verifyAuthorIdentity(args, expectedAuthorAddresses);
 }
 
+/**
+ * Detect and verify addresses
+ * @param args Arguments from an OP_RETURN
+ */
+export function detectAndVerifyAuthorIdentities(args: any[]): VerificationResult {
+  return Utils.detectAndVerifyAuthorIdentities(args);
+}
+
+
+
 
 

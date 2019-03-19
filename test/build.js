@@ -434,6 +434,8 @@ describe('buildFile function test', () => {
         ]);
 
         // Now create the file from the constructed array using the datapay wrapper
+        /*
+        // Uncomment this section to make a on-chain tx
         var result = await index.datapay({
             data: result.data,
             pay: {
@@ -441,6 +443,8 @@ describe('buildFile function test', () => {
             }
         });
         console.log('datapay result', result);
+        */
+        
         /*
         {
             success: true,
