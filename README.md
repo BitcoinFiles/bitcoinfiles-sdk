@@ -2,13 +2,15 @@
 > BitcoinFiles Javascript SDK
 https://www.BitcoinFiles.org
 
-Easily create, retrieve and search for Bitcoin Data Protocol (`b://` files).  Powered by Bitcoin SV.
+Easily create, retrieve and search for Bitcoin Data Protocol (`b://` files). Powered by Bitcoin SV.
+Now supporting the ability to sign files with the [Author Identity Protocol](https://github.com/BitcoinFiles/AUTHOR_IDENTITY_PROTOCOL).
 
 Protocol Docs:
 - https://b.bitdb.network/
 - https://github.com/unwriter/B
+- https://github.com/BitcoinFiles/AUTHOR_IDENTITY_PROTOCOL
 
-**Easily create files in Bitcoin SV:**
+**Easily create files and store it on Bitcoin SV blockchain: **
 
 ```javascript
   require('bitcoinfiles-sdk').createFile({
@@ -36,8 +38,6 @@ Protocol Docs:
 **Installation**
 ```sh
 npm install bitcoinfiles-sdk --save
-yarn add bitcoinfiles-sdk
-bower install bitcoinfiles-sdk --save
 ```
 
 **Include**
@@ -106,7 +106,15 @@ Please note: By default the *encoding* is UTF-8 and if anything other is provide
       },
       pay: {
           key: "your wif key"
-      }
+      },
+      /*
+      // Optional to sign the content with another set of private keys
+      signatures: [
+        {
+          key: "your wif key"
+        }
+      ]
+      */
     });
     console.log(result);
     /*
@@ -197,9 +205,12 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
   var result = await index.find({
       address: "1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz",
       contentType: "application/json",
+      // Optional filters and sorting:
       limit: 5,
       skip: 1,
-      sort: -1
+      sort: -1,
+      // Default 'blk.i'
+      // sortField: 'blk.i' // Any Planaria field identifier such as out.s1, out.h1, etc are available
   });
   console.log(result);
   /*
@@ -286,14 +297,200 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
 
 ```
 
+### Sign and Create File
 
-## Build  and Test
+*Create a plain text file and attach a Bitcoin ECDSA signature using the Author Identity Protocol*
+
+- https://github.com/BitcoinFiles/AUTHOR_IDENTITY_PROTOCOL
+
+```javascript
+    /*
+     Use with promises
+    */
+    const result = await bitcoinfiles.createFile({
+      file: {
+          content: 'hello world',
+          contentType: 'text/plain',
+      },
+      pay: {
+          key: "your wif key"
+      },
+      signatures: [
+        {
+          key: "your wif key for signing"
+        }
+      ]
+    });
+
+    console.log(result);
+
+    /*
+    {
+        success: true
+        txid: "tx hash..."
+    }
+    */
+
+```
+
+### Sign and Build File
+
+*Build a application/json file and attach a Bitcoin ECDSA signature using the Author Identity Protocol*
+
+- https://github.com/BitcoinFiles/AUTHOR_IDENTITY_PROTOCOL
+
+```javascript
+    /*
+     Use with promises
+    */
+    const result = await bitcoinfiles.buildFile({
+        file: {
+            content: '{ "message": "Hello world!" }',
+            contentType: 'application/json',
+        },
+        pay: {
+            key: privateKey
+        },
+        signatures: [
+            {
+                key: privateKey
+            }
+        ]
+    });
+
+    console.log(result);
+    /*
+    // Shows the status and 'data' contains the array of the file and signature content
+    {
+        success: true
+        data: [
+            '0x31394878696756345179427633744870515663554551797131707a5a56646f417574',
+            '0x7b20226d657373616765223a202248656c6c6f20776f726c6421227d',
+            '0x6170706c69636174696f6e2f6a736f6e',
+            '0x7574662d38',
+            '0x00',
+            '0x7c',
+            '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
+            '0x424954434f494e5f4543445341',
+            '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
+            '0x1b3ffcb62a3bce00c9b4d2d66196d123803e31fa88d0a276c125f3d2524858f4d16bf05479fb1f988b852fe407f39e680a1d6d954afa0051cc34b9d444ee6cb0af',
+            '0x06',
+            '0x06',
+            '0x00',
+            '0x01',
+            '0x02',
+            '0x03',
+            '0x04',
+            '0x05'
+        ];
+    }
+    */
+```
+Now you can verify the signature on the OP_RETURN data (optional):
+
+```javascript
+var verifySigResult = await bitcoinfiles.verifyAuthorIdentity(result.data, ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz']);
+console.log(verifySigResult);
+
+/*
+    {
+        verified: true,
+        addresses: [
+            {
+                address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
+                verified: true,
+                fieldIndexesForSignature: [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                ],
+                pos: 6
+            }
+        ]
+    }
+*/
+```
+
+It can be broadcast via datapay or using the `bitcoinfiles.datapay` wrapper:
+
+```javascript
+    // Now create the file from the constructed array using the datapay wrapper
+    var result = await bitcoinfiles.datapay({
+        data: result.data,  // returned from bitcoinfiles.buildFile(...)
+        pay: {
+            key: 'your wif key'
+        }
+    });
+    console.log(result);
+    /*
+    {
+        success: true,
+        txid: 'tx hash...'
+    }
+    */
+```
+
+
+### Verify Author Identity
+
+*Verify the Author Identity of an array of OP_RETURN fields*
+
+
+```javascript
+var opReturnFields = [
+    '0x31394878696756345179427633744870515663554551797131707a5a56646f417574',
+    '0x7b20226d657373616765223a202248656c6c6f20776f726c6421227d',
+    '0x6170706c69636174696f6e2f6a736f6e',
+    '0x7574662d38',
+    '0x00',
+    '0x7c',
+    '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
+    '0x424954434f494e5f4543445341',
+    '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
+    '0x1b3ffcb62a3bce00c9b4d2d66196d123803e31fa88d0a276c125f3d2524858f4d16bf05479fb1f988b852fe407f39e680a1d6d954afa0051cc34b9d444ee6cb0af',
+    '0x06',
+    '0x06',
+    '0x00',
+    '0x01',
+    '0x02',
+    '0x03',
+    '0x04',
+    '0x05'
+];
+var verifySigResult = await bitcoinfiles.verifyAuthorIdentity(opReturnFields, ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz']);
+console.log(verifySigResult);
+
+/*
+    {
+        verified: true,
+        addresses: [
+            {
+                address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
+                verified: true,
+                fieldIndexesForSignature: [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                ],
+                pos: 6
+            }
+        ]
+    }
+*/
+```
+
+## Build and Test
 
 ```
 npm run build
 npm test
 ```
-
 
 -----------
 

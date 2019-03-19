@@ -67,6 +67,15 @@ export class Client {
      * @param callback Optional callback to invoke after completed
      */
     async create(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
+        if (!request.pay || !request.pay.key || request.pay.key === '') {
+            return new Promise((resolve) => {
+                return this.callbackAndResolve(resolve, {
+                    success: false,
+                    message: 'key required'
+                }, callback);
+            });
+        }
+
         const buildResult = await this.buildFile(request);
         if (!buildResult.success) {
             return new Promise((resolve) => {
@@ -126,15 +135,8 @@ export class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
-    buildFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
+    buildFile(request: { file: FileData, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            if (!request.pay || !request.pay.key || request.pay.key === '') {
-                return this.callbackAndResolve(resolve, {
-                    success: false,
-                    message: 'key required'
-                }, callback);
-            }
-
             if (!request.file) {
                 return this.callbackAndResolve(resolve, {
                     success: false,
