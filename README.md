@@ -10,7 +10,7 @@ Protocol Docs:
 - https://github.com/unwriter/B
 - https://github.com/BitcoinFiles/AUTHOR_IDENTITY_PROTOCOL
 
-*Easily create files and store it on Bitcoin SV blockchain: *
+*Easily create files and store it on Bitcoin SV blockchain:*
 
 ```javascript
   require('bitcoinfiles-sdk').createFile({
@@ -20,7 +20,15 @@ Protocol Docs:
     },
     pay: {
         key: "your wif key"
-    }
+    },
+    /*
+    // Optional to sign the content with another set of private keys
+    signatures: [
+        {
+            key: "your identity wif key"
+        }
+    ]
+    */
   }, function(result) {
     console.log(result)
   });
