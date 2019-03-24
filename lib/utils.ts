@@ -8,6 +8,7 @@ const authorIdentityPrefix = '15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva';
 
 export interface VerificationResult {
     verified: boolean;
+    message?: string;
     addresses: Array<{
         address: string,
         verified: boolean,
@@ -20,23 +21,44 @@ export class Utils {
     static isHex(str: string): boolean{
         return /^[0-9A-F]+$/i.test(str);
     }
-
     /**
-     * Sign the arguments for the indexes provided, or sign them all
+     * Check whether the indexes are provided
+     */
+    static isIndexesProvided(indexes: any): boolean {
+        if (!indexes) {
+            return false;
+        }
+
+        if (indexes && Array.isArray(indexes) && !indexes.length) {
+            return false;
+        }
+        return true;
+    }
+    /**
+     * Sign the arguments for the indexes provided, or sign them all.
+     * This is not meant to be used directly if 0x6a is not the first payload.arg[0] value
      * @param payload
      */
     static signArguments(payload: { args: any[], address: string, key: string, indexes?: number[]}): string {
         if (!payload) {
-            throw new Error('insufficient indexes');
+            throw new Error('insufficient data');
         }
-        if (!Array.isArray(payload.args) || !payload.args.length) {
+        if (!Array.isArray(payload.args) || (Array.isArray(payload.args) && !payload.args.length)) {
             throw new Error('insufficient args');
         }
-
         const indexMap = {};
-        const indexes: any = payload.indexes && payload.indexes.length ? payload.indexes : [...Array(payload.args.length).keys()]
+        let indexes: any;
+        let argsToSign = payload.args;
+        // Indexes are provided, therefore we take the clients input as what they want
+        if (Utils.isIndexesProvided(payload.indexes)) {
+            indexes = payload.indexes;
+        } else {
+            // Indexes are not provided, therefore the client wants to sign 'everything' (and that includese the OP_RETURN 0x6a)
+            // Generate indexes 0 to argsToSign.length
+            indexes = [...Array(argsToSign.length).keys()]
+        }
         for (const index of indexes) {
-            if (index > (payload.args.length - 1)) {
+            if (index > (argsToSign.length - 1)) {
                 throw new Error('index out of bounds');
             }
             if (index < 0) {
@@ -49,7 +71,7 @@ export class Utils {
         }
         const usedArgs: any = [];
         for (const index of indexes) {
-            let selectedArg = payload.args[index];
+            let selectedArg = argsToSign[index];
             if (_.isString(selectedArg)) {
                 const checkHexPrefixRegex = /^0x(.*)/i;
                 const match = checkHexPrefixRegex.exec(selectedArg);
@@ -91,7 +113,7 @@ export class Utils {
         const signature = bsv.Message(appData).sign(bsv.PrivateKey(payload.key))
         const verified = bsv.Message(appData).verify(payload.address, signature);
         if (!verified) {
-            throw new Error('Signature verification failure' + signature);
+            throw new Error('signArguments - Signature verification failure: ' + signature);
         }
         return signature;
     }
@@ -102,32 +124,27 @@ export class Utils {
      * @param include0x Whether to include '0x' in the outpout of each hex string or not
      */
     static buildAuthorIdentity(payload: { args: any[], address: string, key: string, indexes?: number[] }): Array<string> {
-        const signature = Utils.signArguments(payload);
+        let payloadWithOpReturn = ['0x6a'].concat(payload.args);
         function toHex(d) {
             return  ("0"+(Number(d).toString(16))).slice(-2).toLowerCase();
         }
         let indexes: any = payload.indexes;
-        if (!payload.indexes || payload.indexes.length == 0) {
-            indexes = [...Array(payload.args.length).keys()];
-        }
+        // Indexes are not provided, therefore make sure to add in the 'OP_RETURN' index that is not provided in the args
+        if (!Utils.isIndexesProvided(payload.indexes)) {
+            indexes = [...Array(payloadWithOpReturn.length).keys()]
+        } 
+
         for (let count = 0; count < indexes; count++) {
             indexes[count] = '0x' + toHex(indexes[count]);
         }
-        let indexesCount = indexes.length;
-        indexesCount = '0x' + toHex(indexesCount);
-
+        const signature = Utils.signArguments(Object.assign({}, payload, { args: payloadWithOpReturn }));
         const constructed = [
             '0x' + Buffer.from(authorIdentityPrefix).toString('hex'),
             '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x' + Buffer.from(payload.address).toString('hex'),
             '0x' + Buffer.from(signature, 'base64').toString('hex')
         ];
-
-        let negativeOffset = payload.args.length;
-        let negativeOffsetStr = '0x' + toHex(negativeOffset);
-
-        constructed.push(negativeOffsetStr);
-        constructed.push(indexesCount);
+        // The 0'th index is the OP_RETURN itself (106)
         for (const index of indexes) {
             const indexStr = '0x' + toHex(index);
             constructed.push(indexStr);
@@ -135,68 +152,85 @@ export class Utils {
         return constructed;
     }
 
-    static validateAuthorIdentityOccurenceAtPos(args: any[], pos: number): {valid: boolean, address?: string, signature?: string, pos?: number, fieldIndexesForSignature?: number[]} {
+    /**
+     * Count the number of fields remaining in the OP_RETURN starting at startFieldIndex and then ending at either
+     * when we find a '|' delimiter or reach end of array
+     * @param args Arguments of OP_RETURN
+     * @param startFieldIndex The first field to start counting from
+     */
+    static getCountOfFieldIndexesRemaining(args: any[], startFieldIndex: number) {
+        if (!args[startFieldIndex]) {
+            return 0;
+        }
+        let fieldCount = 0;
+        for (let i = startFieldIndex; i < args.length; i++) {
+            if (/^(0x)?7c$/i.test(args[i])) {
+                break;
+            }
+            fieldCount++;
+        }
+        return fieldCount;
+    }
+
+    /**
+     * Validate that the AUTHOR IDENTITY at the given position is valid
+     *
+     * @param args Arguments of the OP_RETURN to validate
+     * @param pos Position that the AUTHOR IDENTITY prefix is found
+     */
+    static validateAuthorIdentityOccurenceAtPos(args: any[], pos: number): {valid: boolean, message?: string, address?: string, signature?: string, pos?: number, fieldIndexesForSignature?: number[]} {
         if (!args[pos]) {
             return {valid: false};
         }
         // Enforce positions
         const algorithmSchemePos = 1;
         if (!args[pos + algorithmSchemePos] || Buffer.from(args[pos + algorithmSchemePos], 'hex').toString() !== 'BITCOIN_ECDSA') {
-            return {valid: false};
+            return {valid: false, message: "invalid algorithm position"};
         }
 
         const addressPos = 2;
         if (!args[pos + addressPos]) {
-            return {valid: false};
+            return {valid: false, message: "invalid address position"};
         }
         const address = Buffer.from(args[pos + addressPos], 'hex').toString();
         const signaturePos = 3;
         if (!args[pos + signaturePos]) {
-            return {valid: false};
+            return {valid: false, message: "invalid signature position"};
         }
         const signature = Buffer.from(args[pos + signaturePos], 'hex').toString('base64');
+        const firstFieldIndexPos =  pos + signaturePos + 1;
+        const offset = 0; // The offset is always from the beginning of the entire OP_RETURN payload (Position 0 being the OP_RETURN 0x6a itself)
+        // Calculate how many field indexes there are remaining starting with the first argument after the signature
+        const indexCount = Utils.getCountOfFieldIndexesRemaining(args, firstFieldIndexPos)
 
-        const offsetPos = 4;
-        if (!args[pos + offsetPos]) {
-            return {valid: false};
+        if (indexCount <= 0) {
+            return {
+                valid: false,
+                message: 'Insufficient arguments in decoded OP_RETURN'
+            };
         }
-        const offset = parseInt(args[pos + offsetPos], 16);
-
-        const indexCountPos = 5;
-        if (!args[pos + indexCountPos]) {
-            return {valid: false};
-        }
-        const indexCount = parseInt(args[pos + indexCountPos], 16);
-
-        if (offset <= 0 || indexCount <= 0) {
-            return {valid: false};
-        }
-
         const fieldIndexesForSignature: any[] = [];
-        for (let indexIter = 1;  indexIter <= indexCount; indexIter++) {
-            if ((pos + indexCountPos + indexIter) < 0) {
-                return {valid: false};
+        for (let indexIter = 0;  indexIter < indexCount; indexIter++) {
+            if ((firstFieldIndexPos + indexIter) < 0) {
+                return {
+                    valid: false,
+                    message: "field index less than 0"
+                };
             }
-            if ((pos + indexCountPos + indexIter) >= args.length) {
-                return {valid: false};
+            if ((firstFieldIndexPos + indexIter) >= args.length) {
+                return {valid: false, message: "field index out of bounds greater than length" };
             }
-            if (!args[pos + indexCountPos + indexIter]) {
-                return {valid: false};
-            }
-            fieldIndexesForSignature.push(parseInt(args[pos + indexCountPos + indexIter], 16));
+            fieldIndexesForSignature.push(parseInt(args[firstFieldIndexPos + indexIter], 16));
         }
         const fieldsToSign: any[] = [];
         for (const index of fieldIndexesForSignature) {
-            if ((pos - offset + index) < 0) {
-                return {valid: false};
+            if (index < 0) {
+                return {valid: false, message: "field index out of bounds < 0" };
             }
-            if ((pos - offset + index) >= args.length) {
-                return {valid: false};
+            if (index >= args.length) {
+                return {valid: false, message: "field index out of bounds > length" };
             }
-            if (!args[pos - offset + index]) {
-                return {valid: false};
-            }
-            fieldsToSign.push(args[pos - offset + index]);
+            fieldsToSign.push(args[index]);
         }
         const bufWriter = new bsv.encoding.BufferWriter();
         for (const fieldToSign of fieldsToSign) {
@@ -220,7 +254,7 @@ export class Utils {
             // todo: add debug/verbose mode in future
             // console.log('ex', ex);
         /// }
-        return {valid: false};
+        return {valid: false, message: 'signature not match'};
     }
 
     /**
@@ -247,8 +281,8 @@ export class Utils {
             });
         }
         let expectingSignatureIndex = 0;
-        // Remove any '0x' prefix if present
-        const cleanedArgs: any[] = [];
+        // Remove any '0x' prefix if present and add the 0x6a (OP_RETURN in by default)
+        const cleanedArgs: any[] = ['6a'];
         for (const arg of args) {
             const checkHexPrefixRegex = /^0x(.*)/i;
             let currentFieldValue = arg;
@@ -269,7 +303,7 @@ export class Utils {
             if (authorIdentityPrefix == decodedField) {
                 const result = Utils.validateAuthorIdentityOccurenceAtPos(cleanedArgs, scanPrefixCounter);
                 if (!result.valid) {
-                   return verificationResult;
+                   return Object.assign({}, verificationResult, { message: result.message });
                 }
                 if (verificationResult.addresses[expectingSignatureIndex] &&
                     result.address === verificationResult.addresses[expectingSignatureIndex].address) {
@@ -284,8 +318,8 @@ export class Utils {
             }
         }
         let foundVerified = 0;
-        for (const i of verificationResult.addresses) {
-            if (!i.verified) {
+        for (const addressToVerify of verificationResult.addresses) {
+            if (!addressToVerify.verified) {
                 return verificationResult;
             } else {
                 foundVerified++;

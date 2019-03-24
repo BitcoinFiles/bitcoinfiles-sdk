@@ -151,7 +151,7 @@ export class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
-    buildFile(request: { file: FileData, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
+    buildFile(request: { file: FileData, signatures?: Array<{ key: string }> }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!request.file) {
                 return this.callbackAndResolve(resolve, {

@@ -43,15 +43,14 @@ describe('buildFile function test', () => {
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
-            '0x1c97ffc1a7231bd671df54bd1fa171bd764f22905adc3465753665b5f28e36b1f30a82503984d32175e6aca75fbc53a7f81b4bcd20c074984f5f071eb529fad2a3',
-            '0x06',
-            '0x06',
+            '0x1cacee1dbe375e3e17a662b560944e0ff78dff9f194744fb2ee462d905bc785727420d5deed4b2dd019023f550af4f4f7934050179e217220592a41882f0251ef4',
             '0x00',
             '0x01',
             '0x02',
             '0x03',
             '0x04',
-            '0x05'
+            '0x05',
+            '0x06'
         ];
         expect(result.data).to.eql(expectedSigned1);
         // Let's verify the signature explictly
@@ -69,8 +68,9 @@ describe('buildFile function test', () => {
                     3,
                     4,
                     5,
+                    6,
                 ],
-                pos: 6
+                pos: 7
             }
         ]);
     });
@@ -106,15 +106,14 @@ describe('buildFile function test', () => {
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
-            '0x1cb176af0881babbfb5b7b184a3090062e56e9554bac8eb23ab82f97920aa7153c7406437857a3584aab91fcbb5b180e59812ba318d1f6990f725265cb1c32160a',
-            '0x06',
-            '0x06',
+            '0x1caa0b465884a823dc98bd06690b57e092381ce4af670698ad9ef4b5c84eec0717384c134255db314b03b437690107cac45cb9b5d8cdafcabe1970a51ef34d8f85',
             '0x00',
             '0x01',
             '0x02',
             '0x03',
             '0x04',
-            '0x05'
+            '0x05',
+            '0x06'
         ];
         expect(result.data).to.eql(expectedSigned1);
         // Let's verify the signature explictly
@@ -132,8 +131,9 @@ describe('buildFile function test', () => {
                     3,
                     4,
                     5,
+                    6,
                 ],
-                pos: 6
+                pos: 7
             }
         ]);
     });
@@ -171,22 +171,19 @@ describe('buildFile function test', () => {
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
-            '0x1c97ffc1a7231bd671df54bd1fa171bd764f22905adc3465753665b5f28e36b1f30a82503984d32175e6aca75fbc53a7f81b4bcd20c074984f5f071eb529fad2a3',
-            '0x06',
-            '0x06',
+            '0x1cacee1dbe375e3e17a662b560944e0ff78dff9f194744fb2ee462d905bc785727420d5deed4b2dd019023f550af4f4f7934050179e217220592a41882f0251ef4',
             '0x00',
             '0x01',
             '0x02',
             '0x03',
             '0x04',
             '0x05',
+            '0x06',
             '0x7c',
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
-            '0x1cbb87434c1e13eca9b16d1908b4a9720051d53223bbdbd223b6b103ef2abcf4215f3420648715d5e132971dd5df7f87338f39429c7b92618c0641af8beccffd60',
-            '0x13',
-            '0x13',
+            '0x1c4750252ccd7f5455886e0f8fb914ca3918dd092ea66ab79528d793ce54063b8001c17230efcca9deb3e39a8fb80124e2347f37503bff486a1a6dabefdcb7cb07',
             '0x00',
             '0x01',
             '0x02',
@@ -205,7 +202,7 @@ describe('buildFile function test', () => {
             '0x0f',
             '0x10',
             '0x11',
-            '0x12'
+            '0x12',
         ];
         expect(result.data).to.eql(expectedSigned1);
         // Let's verify the signature explictly
@@ -223,8 +220,9 @@ describe('buildFile function test', () => {
                     3,
                     4,
                     5,
+                    6,
                 ],
-                pos: 6
+                pos: 7
             },
             {
                 address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
@@ -288,22 +286,19 @@ describe('buildFile function test', () => {
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
-            '0x1c97ffc1a7231bd671df54bd1fa171bd764f22905adc3465753665b5f28e36b1f30a82503984d32175e6aca75fbc53a7f81b4bcd20c074984f5f071eb529fad2a3',
-            '0x06',
-            '0x06',
+            '0x1cacee1dbe375e3e17a662b560944e0ff78dff9f194744fb2ee462d905bc785727420d5deed4b2dd019023f550af4f4f7934050179e217220592a41882f0251ef4',
             '0x00',
             '0x01',
             '0x02',
             '0x03',
             '0x04',
             '0x05',
+            '0x06',
             '0x7c',
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31396e6b6e4c68526e474b525233686f6265467575716d48554d694e544b5a487352',
-            '0x1b88faf24d32af9d50e200351bc808d6b01f3653b15a1f99cf9652704f95e7653a463ec95771b888e9878cc6425eafe4ef0e42c3b9f0b9572da6ab5af28a701974',
-            '0x13',
-            '0x13',
+            '0x1b4212864c799a9d2f1ceb7b4e8e14c5cb6d943a380671bbc55dcd699930343cbd1edf62a204589f8a384f894765b4b98b2e1acbd3a9af493007ef85624d2d2c50',
             '0x00',
             '0x01',
             '0x02',
@@ -340,8 +335,9 @@ describe('buildFile function test', () => {
                     3,
                     4,
                     5,
+                    6,
                 ],
-                pos: 6
+                pos: 7
             },
             {
                 address: address2,
@@ -402,15 +398,14 @@ describe('buildFile function test', () => {
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
-            '0x1cbbb175c287f1c325f9687206ae93d88514c217678d83a5e8ef85f814e8a7e9964c4440ca35e7edd0e0ab82b463dd6171e7e3b759a79d99e35fa0fe34629170d9',
-            '0x06',
-            '0x06',
+            '0x1b7f1cd9ab8ea94cd8cc2bc0b598aa41b2420faf6b0593fe851478d1c22a42c6d73b3890e0f2743e0d21c4f7fa0023362bf9f15dc9a16511ab57714dce1ae3f35f',
             '0x00',
             '0x01',
             '0x02',
             '0x03',
             '0x04',
-            '0x05'
+            '0x05',
+            '0x06'
         ];
         expect(result.data).to.eql(expectedSigned1);
         // Let's verify the signature explictly
@@ -428,8 +423,9 @@ describe('buildFile function test', () => {
                     3,
                     4,
                     5,
+                    6,
                 ],
-                pos: 6
+                pos: 7,
             }
         ]);
 

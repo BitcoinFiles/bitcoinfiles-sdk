@@ -97,6 +97,8 @@ describe('sign', () => {
             key: privateKey,
             indexes: [0, 1]
         });
+        const expectedSignature = bsv.Message(Buffer.from('0001', 'hex')).sign(bsv.PrivateKey(privateKey))
+        expect(expectedSignature).to.eql('G9ndxGjS4dairVPxoN8wA0086XqUjG5qy2Wp3JnfDHHGQgy1UobjLmkpwTE/j6k5F5xQ95FyZgH/kigTdyt5Ya4=');
         expect(result).to.eql('G9ndxGjS4dairVPxoN8wA0086XqUjG5qy2Wp3JnfDHHGQgy1UobjLmkpwTE/j6k5F5xQ95FyZgH/kigTdyt5Ya4=');
     });
 
@@ -236,14 +238,15 @@ describe('sign', () => {
         expect(result).to.eql(expectedSignature);
     });
 
-    it('#buildAuthorIdentity success to create an author identity', async () => {
+    it('#buildAuthorIdentity success to create an author identity 1', async () => {
         const signature = index.signArguments({
-            args: [Buffer.from('|'), '0x01', Buffer.from('hello, world'), '0x103A', '0x', '', Buffer.from('|')],
+            args: ['0x6a', Buffer.from('|'), '0x01', Buffer.from('hello, world'), '0x103A', '0x', '', Buffer.from('|')],
             address: address,
             key: privateKey
         });
 
         const bufs = Buffer.concat([
+            Buffer.from('6a', 'hex'),
             Buffer.from('|'),
             Buffer.from('01', 'hex'),
             Buffer.from('hello, world'),
@@ -274,20 +277,19 @@ describe('sign', () => {
             '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x' + Buffer.from(address).toString('hex'),
             '0x' + Buffer.from(expectedSignature, 'base64').toString('hex'),
-            '0x07', // relative negative index
-            '0x07', // number of indexes to follow
             '0x00',
             '0x01',
             '0x02',
             '0x03',
             '0x04',
             '0x05',
-            '0x06'
+            '0x06',
+            '0x07'
         ];
         expect(opReturnHexArray).to.eql(expected);
     });
 
-    it('#buildAuthorIdentity success to create an author identity', async () => {
+    it('#buildAuthorIdentity success to create an author identity 2', async () => {
         const signature = index.signArguments({
             args: [Buffer.from('|'), '0x01', Buffer.from('hello, world'), '0x103A', '0x', '', Buffer.from('|')],
             address: address,
@@ -315,7 +317,7 @@ describe('sign', () => {
             ],
             address: address,
             key: privateKey,
-            indexes: [0, 1, 5]
+            indexes: [1, 2, 6]
         });
 
      const expected = [
@@ -323,11 +325,9 @@ describe('sign', () => {
             '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x' + Buffer.from(address).toString('hex'),
             '0x' + Buffer.from(expectedSignature, 'base64').toString('hex'),
-            '0x07', // relative negative index
-            '0x03', // number of indexes to follow
-            '0x00',
             '0x01',
-            '0x05'
+            '0x02',
+            '0x06'
         ];
         expect(opReturnHexArray).to.eql(expected);
     });
@@ -345,11 +345,9 @@ describe('sign', () => {
             Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
             '0x1cea8eb97421f79a3c672acd8be81847c3344559b22e31523ec4b8b57047d561910cac077a71c57f7ec06da6a44a3e3936a530e95f87cdc097ccf40bf6d31c18e7',
-            '0x07',
-            '0x03',
-            '0x00',
             '0x01',
-            '0x05'
+            '0x02',
+            '0x06'
         ];
         const verified = index.verifyAuthorIdentity(opReturnFields, ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz']);
         expect(verified.verified).to.eql(true);
@@ -368,11 +366,9 @@ describe('sign', () => {
             Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '31455868536247466945415a4345356565427655785436634256486872705057587a',
             '1cea8eb97421f79a3c672acd8be81847c3344559b22e31523ec4b8b57047d561910cac077a71c57f7ec06da6a44a3e3936a530e95f87cdc097ccf40bf6d31c18e7',
-            '07',
-            '03',
-            '00',
             '01',
-            '05'
+            '02',
+            '06'
         ];
         const verified = index.verifyAuthorIdentity(opReturnFields, ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz']);
         expect(verified.verified).to.eql(true);
@@ -458,6 +454,33 @@ describe('sign', () => {
         }).to.throw(Error);
     });
 
+    it('#signArguments with indexes', async () => {
+        const args = [
+            Buffer.from('dont sign here either'),
+            Buffer.from('532156', 'hex'),
+            Buffer.from('99129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912', 'hex'),
+            Buffer.from('hello, world'),
+            Buffer.from('dont sign this'),
+            Buffer.from('|'),
+            Buffer.from('sign this tho')
+        ];
+        const signature = index.signArguments({
+            args: args,
+            address: address,
+            key: privateKey,
+            indexes: [1, 2, 3, 5, 6]
+        });
+        const bufs = Buffer.concat([
+            Buffer.from('532156', 'hex'),
+            Buffer.from('99129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912991299129912', 'hex'),
+            Buffer.from('hello, world'),
+            Buffer.from('|'),
+            Buffer.from('sign this tho')
+        ]);
+        const expectedSignature = bsv.Message(bufs).sign(bsv.PrivateKey(privateKey))
+        expect(signature).to.eql(expectedSignature);
+    });
+
     it('#buildAuthorIdentity and #verifyAuthorIdentity success to create an author identity', async () => {
         const args = [
             Buffer.from('dont sign here either'),
@@ -487,20 +510,18 @@ describe('sign', () => {
             args: args,
             address: address,
             key: privateKey,
-            indexes: [1, 2, 3, 5, 6]
+            indexes: [2, 3, 4, 6, 7]
         });
         const expected = [
             '0x' + Buffer.from('15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva').toString('hex'),
             '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),
             '0x' + Buffer.from(address).toString('hex'),
             '0x' + Buffer.from(expectedSignature, 'base64').toString('hex'),
-            '0x07', // relative negative index
-            '0x05', // number of indexes to follow
-            '0x01',
             '0x02',
             '0x03',
-            '0x05',
-            '0x06'
+            '0x04',
+            '0x06',
+            '0x07'
         ];
         expect(opReturnHexArray).to.eql(expected);
         const opReturnFields = args.concat(expected);
@@ -554,13 +575,19 @@ describe('sign', () => {
             key: privateKey
         }, false);
         const fullOpReturnFields = args.concat(opReturnHexArray);
-        expect(fullOpReturnFields[3]).to.eql('0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661')
-        expect(fullOpReturnFields[4]).to.eql('0x424954434f494e5f4543445341')
-        expect(fullOpReturnFields[7]).to.eql('0x03')
-        expect(fullOpReturnFields[8]).to.eql('0x03')
-        expect(fullOpReturnFields[9]).to.eql('0x00')
-        expect(fullOpReturnFields[10]).to.eql('0x01')
-        expect(fullOpReturnFields[11]).to.eql('0x02')
+        expect(fullOpReturnFields).to.eql([
+            '7369676e206d65',
+            '616e64206d65',
+            '7c',
+            '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
+            '0x424954434f494e5f4543445341',
+            '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
+            '0x1b9c4e98846f8882c3146be1ccc4daa59a74fec5d4897e5c913f60d99db63f639b7ff17dac3954af7ddf8e8dc433cc9848a644c125deb70dd35899146762d486ff',
+            '0x00',
+            '0x01',
+            '0x02',
+            '0x03'
+        ]);
         const verified = index.verifyAuthorIdentity(fullOpReturnFields, [address]);
         expect(verified.verified).to.eql(true);
     });
@@ -599,22 +626,19 @@ describe('sign', () => {
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
-            '0x1c97ffc1a7231bd671df54bd1fa171bd764f22905adc3465753665b5f28e36b1f30a82503984d32175e6aca75fbc53a7f81b4bcd20c074984f5f071eb529fad2a3',
-            '0x06',
-            '0x06',
+            '0x1cacee1dbe375e3e17a662b560944e0ff78dff9f194744fb2ee462d905bc785727420d5deed4b2dd019023f550af4f4f7934050179e217220592a41882f0251ef4',
             '0x00',
             '0x01',
             '0x02',
             '0x03',
             '0x04',
             '0x05',
+            '0x06',
             '0x7c',
             '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
             '0x424954434f494e5f4543445341',
             '0x31396e6b6e4c68526e474b525233686f6265467575716d48554d694e544b5a487352',
-            '0x1b88faf24d32af9d50e200351bc808d6b01f3653b15a1f99cf9652704f95e7653a463ec95771b888e9878cc6425eafe4ef0e42c3b9f0b9572da6ab5af28a701974',
-            '0x13',
-            '0x13',
+            '0x1b4212864c799a9d2f1ceb7b4e8e14c5cb6d943a380671bbc55dcd699930343cbd1edf62a204589f8a384f894765b4b98b2e1acbd3a9af493007ef85624d2d2c50',
             '0x00',
             '0x01',
             '0x02',
@@ -651,8 +675,9 @@ describe('sign', () => {
                     3,
                     4,
                     5,
+                    6
                 ],
-                pos: 6
+                pos: 7
             },
             {
                 address: address2,
