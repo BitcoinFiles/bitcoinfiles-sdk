@@ -130,6 +130,22 @@ export class Client {
     }
 
     /**
+     * Hex encode data. Also lowercase any hex data
+     * @param data data to hex encode if it's not already hex
+     */
+    hexEncodeIfNeeded(data: string | undefined): string {
+        if (!data) {
+            return '0x00';
+        }
+        const checkHexPrefixRegex = /^0x(.*)/i;
+        const match = checkHexPrefixRegex.exec(data);
+        if (match && match[1]) {
+            return data.toLowerCase();
+        }
+        return '0x' + this.hexEncode(data).toLowerCase();
+    }
+
+    /**
      * Builds the file and returns the parameters to send to datapay
      *
      * @param request create request
@@ -160,35 +176,23 @@ export class Client {
 
             try {
                 let encoding = request.file.encoding ? request.file.encoding : 'utf-8';
-                let content = '';
                 if (this.isUtf8(encoding)) {
                     encoding = 'utf-8';
-                    content = this.hexEncode(request.file.content)
-                } else {
-                    content = request.file.content
                 }
                 let args = [
                     '0x' + Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut").toString('hex'),
-                    '0x' + content,
-                    '0x' + this.hexEncode(request.file.contentType),
-                    '0x' + this.hexEncode(encoding)
+                    this.hexEncodeIfNeeded(request.file.content),
+                    this.hexEncodeIfNeeded(request.file.contentType),
+                    this.hexEncodeIfNeeded(encoding)
                 ];
-
                 const hasFileName = request.file.name && request.file.name !== '';
-                if (request.file && (hasFileName || (request.file.tags && request.file.tags.length))) {
-                    let filename = request.file.name ? request.file.name : '';
-                    args.push('0x' + this.hexEncode(filename));
-                    if (request.file.tags) {
-                        request.file.tags.map((tag) => args.push(this.hexEncode(tag)));
-                    }
+                let filename = request.file.name ? request.file.name : '0x00';
+                args.push(this.hexEncodeIfNeeded(filename));
+                if (request.file.tags) {
+                    request.file.tags.map((tag) => args.push(this.hexEncodeIfNeeded(tag)));
                 }
-
                 // Attach signatures if they are provided
                 if (request.signatures && Array.isArray(request.signatures)) {
-                    if (!hasFileName) {
-                        // We must attach a blank or empty filename if we want a signature
-                        args.push('0x00');
-                    }
                     for (const signatureKey of request.signatures) {
                         if (!signatureKey.key || /^\s*$/.test(signatureKey.key)) {
                             return this.callbackAndResolve(resolve, {

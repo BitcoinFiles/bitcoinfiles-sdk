@@ -453,4 +453,47 @@ describe('buildFile function test', () => {
         */
         expect(result.success).to.equal(true);
     });
+
+    it('should return success even if content and contentType is already hex encoded', async () => {
+        var buildRequest = {
+            file: {
+                content: '0x68656C6C6F',
+                contentType: '0x746578742F706C61696E',
+                tags: [
+                    '0x68656C6C6F',
+                    'hello'
+                ]
+            }
+        };
+        var result = await index.buildFile(buildRequest);
+        expect(result.success).to.equal(true);
+        expect(result.data).to.eql([
+            '0x31394878696756345179427633744870515663554551797131707a5a56646f417574',
+            '0x68656c6c6f',
+            '0x746578742f706c61696e',
+            '0x7574662d38',
+            '0x00',
+            '0x68656c6c6f',
+            '0x68656c6c6f'
+        ]);
+    });
+
+    it('should return success if nothing is hex encoded', async () => {
+        var buildRequest = {
+            file: {
+                content: 'hello world',
+                contentType: 'text/markdown',
+                name: 'hello.md',
+            }
+        };
+        var result = await index.buildFile(buildRequest);
+        expect(result.success).to.equal(true);
+        expect(result.data).to.eql([
+            '0x31394878696756345179427633744870515663554551797131707a5a56646f417574',
+            '0x68656c6c6f20776f726c64',
+            '0x746578742f6d61726b646f776e',
+            '0x7574662d38',
+            '0x68656c6c6f2e6d64'
+        ]);
+    });
 });
