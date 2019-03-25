@@ -366,6 +366,16 @@ describe('buildFile function test', () => {
                 pos: 19
             }
         ]);
+        /*
+        // Uncomment this section to broadcast 
+        var result = await index.datapay({
+            data: result.data,
+            pay: {
+                key: privateKey
+            }
+        });
+        console.log('datapay result', result);
+        */
     });
 
     it('should return success buildFile utf-8 and signs it with a public key and then create the file', async () => {

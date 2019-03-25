@@ -601,6 +601,31 @@ console.log(result);
 */
 ```
 
+# Transaction Examples
+
+##### File with 1 signature
+
+File:
+
+https://www.bitcoinfiles.org/db61b9a0a31142825a9f2f1c48543299f72c974b5e4c44335c4357abfdeac753
+
+
+Transaction:
+
+https://whatsonchain.com/tx/db61b9a0a31142825a9f2f1c48543299f72c974b5e4c44335c4357abfdeac753
+
+
+##### File with 2 signatures
+
+File:
+
+https://www.bitcoinfiles.org/d4738845dc0d045a35c72fcacaa2d4dee19a3be1cbfcb0d333ce2aec6f0de311
+
+
+Transaction:
+
+https://whatsonchain.com/tx/d4738845dc0d045a35c72fcacaa2d4dee19a3be1cbfcb0d333ce2aec6f0de311
+
 
 ## Build and Test
 
