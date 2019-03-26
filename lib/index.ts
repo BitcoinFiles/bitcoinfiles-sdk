@@ -130,6 +130,11 @@ export default class BitcoinFiles {
   }
 }
 
-if (window) {
-  window['BitcoinFiles'] = BitcoinFiles;
+try {
+  if (window) {
+    window['BitcoinFiles'] = BitcoinFiles;
+  }
+}
+catch (ex) {
+    console.log('window not defined...');
 }
