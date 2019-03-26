@@ -1,7 +1,7 @@
-import * as bsv from 'bsv';
-import * as bsvMessage from 'bsv/message';
+import * as datapay from 'datapay';
+// import * as bsvMessage from 'datapay/bsv/message';
 import * as _ from 'lodash/core';
-bsv.Message = bsvMessage;
+// datapay.bsv.Message = bsvMessage;
 
 declare var Buffer;
 const authorIdentityPrefix = '15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva';
@@ -100,18 +100,18 @@ export class Utils {
         if (!usedArgs || !usedArgs.length) {
             throw new Error('insufficient index args');
         }
-        const bufferWriter = new bsv.encoding.BufferWriter();
+        const bufferWriter = new datapay.bsv.encoding.BufferWriter();
         for (const field of usedArgs) {
             let bf = field;
             if (!Buffer.isBuffer(field)) {
-                bf = new bsv.encoding.BufferReader(field);
+                bf = new datapay.bsv.encoding.BufferReader(field);
                 bf = bf.buf;
             }
             bufferWriter.write(bf);
         }
         const appData = bufferWriter.toBuffer();
-        const signature = bsv.Message(appData).sign(bsv.PrivateKey(payload.key))
-        const verified = bsv.Message(appData).verify(payload.address, signature);
+        const signature = datapay.bsv.Message(appData).sign(datapay.bsv.PrivateKey(payload.key))
+        const verified = datapay.bsv.Message(appData).verify(payload.address, signature);
         if (!verified) {
             throw new Error('signArguments - Signature verification failure: ' + signature);
         }
@@ -232,14 +232,14 @@ export class Utils {
             }
             fieldsToSign.push(args[index]);
         }
-        const bufWriter = new bsv.encoding.BufferWriter();
+        const bufWriter = new datapay.bsv.encoding.BufferWriter();
         for (const fieldToSign of fieldsToSign) {
             let bf = Buffer.from(fieldToSign, 'hex');
             bufWriter.write(bf);
         }
         const appData = bufWriter.toBuffer();
         //try {
-            const verified = bsv.Message(appData).verify(address, signature);
+            const verified = datapay.bsv.Message(appData).verify(address, signature);
             if (verified) {
                return {
                    valid: true,

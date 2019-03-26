@@ -116,7 +116,20 @@ export function detectAndVerifyAuthorIdentities(args: any[]): VerificationResult
   return Utils.detectAndVerifyAuthorIdentities(args);
 }
 
+export default class BitcoinFiles {
+  options = undefined;
 
+  constructor(options?: any) {
+    if (options) {
+      this.options = options;
+    }
+  }
 
+  createFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
+    return createFile(request, callback, this.options);
+  }
+}
 
-
+if (window) {
+  window['BitcoinFiles'] = BitcoinFiles;
+}

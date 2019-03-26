@@ -1,14 +1,9 @@
 import * as datapay from 'datapay';
-import * as bsv from 'bsv';
 import axios from 'axios';
 import { FileData } from './models/file-data.interface';
 declare var Buffer: any;
 import * as textEncoder from 'text-encoder';
 import { Utils } from './utils';
-
-function buf2hex(buffer: any) {
-  return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('')
-}
 
 const defaultOptions = {
     bitdb_api_base: 'https://babel.bitdb.network/q/1DHDifPvtPgKFPZMRSxmVHhiPvFmxZwbfh/',
@@ -200,7 +195,7 @@ export class Client {
                                 message: 'signature key required'
                             }, callback);
                         }
-                        const identityPrivateKey = new bsv.PrivateKey(signatureKey.key);
+                        const identityPrivateKey = new datapay.bsv.PrivateKey(signatureKey.key);
                         const identityAddress = identityPrivateKey.toAddress().toLegacyAddress();
                         args.push('0x' + Buffer.from('|').toString('hex'));
                         const opReturnHexArray = Utils.buildAuthorIdentity({
