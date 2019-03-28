@@ -235,7 +235,7 @@ export class Client {
                 }, callback);
             }
             try {
-                let query = this.baseQuery(-1, 0, 0, 'blk.i');
+                let query = this.baseQuery({ 'blk.i': -1 }, 0, 0);
                 query = this.addFindClause(query, 'tx.h', txid);
 
                 axios.get(
@@ -289,9 +289,8 @@ export class Client {
         tags?: string[],
         skip?: number,
         limit?: number,
-        sort?: -1 | 1,
-        debug?: boolean,
-        sortField?: string
+        sort?: any,
+        debug?: boolean
     }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!request) {
@@ -301,11 +300,10 @@ export class Client {
                 }, callback);
             }
             try {
-                let sort = request.sort ? request.sort : -1;
                 let limit = request.limit ? request.limit : 1;
                 let skip = request.skip ? request.skip : 0;
-                let sortField = request.sortField ? request.sortField : 'blk.i';
-                let query = this.baseQuery(sort, limit, skip, sortField);
+                let sort = request.sort ? request.sort :  { 'blk.i' : -1 };
+                let query = this.baseQuery(sort, limit, skip);
 
                 if (request.address) {
                     query = this.addFindClause(query, 'in.e.a', request.address);
@@ -390,7 +388,7 @@ export class Client {
         });
     }
 
-    private baseQuery(sort: number = -1, limit: number = 1, skip: number = 0, sortField: string = 'blk.i'): any {
+    private baseQuery(sort: any, limit: number = 1, skip: number = 0): any {
         return {
             "v": 3,
             "q": {
@@ -398,7 +396,7 @@ export class Client {
                 },
                 "limit": limit,
                 "skip": skip,
-                "sort": { [sortField]: sort}
+                "sort": sort
             },
             "r": {
                 "f": "[.[] | { txid: .tx.h, inputInfo: . | { in: .in? }, blockInfo: . | { blockIndex: .blk.i?, blockTime: .blk.t?}, out: .out  } ]"

@@ -216,9 +216,8 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
       // Optional filters and sorting:
       limit: 5,
       skip: 1,
-      sort: -1,
+      sort:  { 'blk.i': -1 }
       // Default 'blk.i'
-      // sortField: 'blk.i' // Any Planaria field identifier such as out.s1, out.h1, etc are available
   });
   console.log(result);
   /*
@@ -251,7 +250,7 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
       contentType: "application/json",
       limit: 5,
       skip: 1,
-      sort: -1
+      sort: { 'blk.i': -1 }
   }, function(result) {
       console.log(result);
   });
@@ -265,7 +264,7 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
       address: "1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz",
       name: "hello.txt",
       skip: 1,
-      sort: -1
+      sort: { 'blk.i': -1 }
   });
   console.log(result);
   /*
@@ -287,8 +286,7 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
 ```javascript
   var result = await bitcoinfiles.find({
       name: "hello.txt",
-      sort: -1,
-      sortField: 'out.s8'
+      sort: { 'out.s8': -1 }
   });
   console.log(result);
   /*

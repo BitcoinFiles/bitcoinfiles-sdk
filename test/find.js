@@ -80,6 +80,7 @@ describe('find function test', () => {
             address: "1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz",
             contentType: "application/test+json",
             limit: 5,
+            sort: { 'blk.i': -1 }
         });
         expect(result).to.eql({
             success: true,
