@@ -628,6 +628,19 @@ Transaction:
 https://whatsonchain.com/tx/d4738845dc0d045a35c72fcacaa2d4dee19a3be1cbfcb0d333ce2aec6f0de311
 
 
+##### File with 1 signature, but using implicit 'sign all' by omitting indexes:
+
+
+File:
+
+https://www.bitcoinfiles.org/5633bb966d9531d22df7ae98a70966eebe4379d400d74ac948bf5b4f2867092c
+
+
+Transaction:
+
+https://whatsonchain.com/tx/5633bb966d9531d22df7ae98a70966eebe4379d400d74ac948bf5b4f2867092c
+
+
 ## Build and Test
 
 ```

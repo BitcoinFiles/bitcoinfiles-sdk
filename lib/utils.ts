@@ -52,12 +52,14 @@ export class Utils {
         let indexes: any;
         let argsToSign = payload.args;
         // Indexes are provided, therefore we take the clients input as what they want
+        let isSignedAll = false;    // Use this flag to determine whether to omit indexes or not
         if (Utils.isIndexesProvided(payload.indexes)) {
             indexes = payload.indexes;
         } else {
             // Indexes are not provided, therefore the client wants to sign 'everything' (and that includese the OP_RETURN 0x6a)
             // Generate indexes 0 to argsToSign.length
             indexes = [...Array(argsToSign.length).keys()]
+            isSignedAll = true; // We will omit this indexes at the end for convenience
         }
         for (const index of indexes) {
             if (index > (argsToSign.length - 1)) {
@@ -132,8 +134,10 @@ export class Utils {
         }
         let indexes: any = payload.indexes;
         // Indexes are not provided, therefore make sure to add in the 'OP_RETURN' index that is not provided in the args
+        let signAllImplicit = false;
         if (!Utils.isIndexesProvided(payload.indexes)) {
             indexes = [...Array(payloadWithOpReturn.length).keys()]
+            signAllImplicit = true;
         }
 
         for (let count = 0; count < indexes; count++) {
@@ -147,9 +151,12 @@ export class Utils {
             '0x' + Buffer.from(signature, 'base64').toString('hex')
         ];
         // The 0'th index is the OP_RETURN itself (106)
-        for (const index of indexes) {
-            const indexStr = '0x' + toHex(index);
-            constructed.push(indexStr);
+        // But only add the indexes if the user provided them, otherwise we can omit them and assume everything is signed
+        if (!signAllImplicit) {
+            for (const index of indexes) {
+                const indexStr = '0x' + toHex(index);
+                constructed.push(indexStr);
+            }
         }
         return constructed;
     }
@@ -201,28 +208,25 @@ export class Utils {
         }
         const signature = Buffer.from(args[pos + signaturePos], 'hex').toString('base64');
         const firstFieldIndexPos =  pos + signaturePos + 1;
-        const offset = 0; // The offset is always from the beginning of the entire OP_RETURN payload (Position 0 being the OP_RETURN 0x6a itself)
         // Calculate how many field indexes there are remaining starting with the first argument after the signature
         const indexCount = Utils.getCountOfFieldIndexesRemaining(args, firstFieldIndexPos)
-
-        if (indexCount <= 0) {
-            return {
-                valid: false,
-                message: 'Insufficient arguments in decoded OP_RETURN'
-            };
-        }
-        const fieldIndexesForSignature: any[] = [];
-        for (let indexIter = 0;  indexIter < indexCount; indexIter++) {
-            if ((firstFieldIndexPos + indexIter) < 0) {
-                return {
-                    valid: false,
-                    message: "field index less than 0"
-                };
+        let fieldIndexesForSignature: any[] = [];
+        // If there are no indexes, then it is implied that everything to the left is signed
+        if (indexCount > 0) {
+            for (let indexIter = 0;  indexIter < indexCount; indexIter++) {
+                if ((firstFieldIndexPos + indexIter) < 0) {
+                    return {
+                        valid: false,
+                        message: "field index less than 0"
+                    };
+                }
+                if ((firstFieldIndexPos + indexIter) >= args.length) {
+                    return {valid: false, message: "field index out of bounds greater than length" };
+                }
+                fieldIndexesForSignature.push(parseInt(args[firstFieldIndexPos + indexIter], 16));
             }
-            if ((firstFieldIndexPos + indexIter) >= args.length) {
-                return {valid: false, message: "field index out of bounds greater than length" };
-            }
-            fieldIndexesForSignature.push(parseInt(args[firstFieldIndexPos + indexIter], 16));
+        } else {
+            fieldIndexesForSignature = [...Array(pos).keys()];
         }
         const fieldsToSign: any[] = [];
         for (const index of fieldIndexesForSignature) {
