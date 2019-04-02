@@ -400,6 +400,7 @@ console.log(verifySigResult);
 /*
     {
         verified: true,
+        signedFullyByAddresses: ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz'], // Set when all the fields to the left are signed by the addresss
         addresses: [
             {
                 address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
@@ -470,6 +471,7 @@ console.log(verifySigResult);
 /*
     {
         verified: true,
+        signedFullyByAddresses: ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz'], // Set when all the fields to the left are signed by the addresss
         addresses: [
             {
                 address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
@@ -553,6 +555,7 @@ console.log(result);
 /*
     {
         verified: true,
+        signedFullyByAddresses: ['1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz', '19nknLhRnGKRR3hobeFuuqmHUMiNTKZHsR'], // Set when all the fields to the left are signed by the addresss
         addresses: [
             {
                 address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',

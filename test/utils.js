@@ -526,7 +526,24 @@ describe('sign', () => {
         expect(opReturnHexArray).to.eql(expected);
         const opReturnFields = args.concat(expected);
         const verified = index.verifyAuthorIdentity(opReturnFields, [address]);
-        expect(verified.verified).to.eql(true);
+        expect(verified).to.eql({
+            "addresses": [
+                {
+                    "address": "1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz",
+                    "fieldIndexesForSignature": [
+                        2,
+                        3,
+                        4,
+                        6,
+                        7,
+                    ],
+                    "pos": 8,
+                    "verified": true,
+                }
+            ],
+            "signedFullyByAddresses": [], // Notice that this is empty. Because the address does not fully sign to the left
+             "verified": true,
+        });
     });
 
     it('#buildAuthorIdentity and #verifyAuthorIdentity success example 1', async () => {
@@ -589,7 +606,25 @@ describe('sign', () => {
             '0x03'
         ]);
         const verified = index.verifyAuthorIdentity(fullOpReturnFields, [address]);
-        expect(verified.verified).to.eql(true);
+        expect(verified).to.eql({
+            verified: true,
+            signedFullyByAddresses: [
+                address,
+            ],
+            addresses: [
+                {
+                    "address": address,
+                    "fieldIndexesForSignature": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "pos": 4,
+                    "verified": true,
+                }
+            ]
+        });
     });
 
 
@@ -663,49 +698,55 @@ describe('sign', () => {
         // Let's verify the signature explictly
         // (It was already verified underneath in building it, but we check again for demo purposes)
         var detectAddressesResult = await index.detectAndVerifyAuthorIdentities(result.data);
-        expect(detectAddressesResult.verified).to.equal(true);
-        expect(detectAddressesResult.addresses).to.eql([
-            {
-                address: address,
-                verified: true,
-                fieldIndexesForSignature: [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6
-                ],
-                pos: 7
-            },
-            {
-                address: address2,
-                verified: true,
-                fieldIndexesForSignature: [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    16,
-                    17,
-                    18
-                ],
-                pos: 19
-            }
-        ]);
+        expect(detectAddressesResult).to.eql({
+            verified: true,
+            signedFullyByAddresses: [
+                address,
+                address2
+            ],
+            addresses: [
+                {
+                    address: address,
+                    verified: true,
+                    fieldIndexesForSignature: [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6
+                    ],
+                    pos: 7
+                },
+                {
+                    address: address2,
+                    verified: true,
+                    fieldIndexesForSignature: [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18
+                    ],
+                    pos: 19
+                }
+            ]
+        });
     });
 })
 

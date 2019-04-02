@@ -10,6 +10,7 @@ const authorIdentityPrefix = '15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva';
 export interface VerificationResult {
     verified: boolean;
     message?: string;
+    signedFullyByAddresses?: Array<string>;
     addresses: Array<{
         address: string,
         verified: boolean,
@@ -133,7 +134,7 @@ export class Utils {
         // Indexes are not provided, therefore make sure to add in the 'OP_RETURN' index that is not provided in the args
         if (!Utils.isIndexesProvided(payload.indexes)) {
             indexes = [...Array(payloadWithOpReturn.length).keys()]
-        } 
+        }
 
         for (let count = 0; count < indexes; count++) {
             indexes[count] = '0x' + toHex(indexes[count]);
@@ -273,7 +274,8 @@ export class Utils {
         }
         const verificationResult: VerificationResult = {
             verified: false,
-            addresses: []
+            addresses: [],
+            signedFullyByAddresses: []  // contains the addresses that fully signed everything to the left
         };
         for (const expectedAddress of expectedAuthorAddresses) {
             verificationResult.addresses.push({
@@ -312,6 +314,11 @@ export class Utils {
                     verificationResult.addresses[expectingSignatureIndex].verified = true;
                     verificationResult.addresses[expectingSignatureIndex].pos = result.pos;
                     verificationResult.addresses[expectingSignatureIndex].fieldIndexesForSignature = result.fieldIndexesForSignature;
+
+                    if (verificationResult.signedFullyByAddresses &&
+                        this.areAllFieldsIncludedUpto(result.fieldIndexesForSignature, result.pos)) {
+                        verificationResult.signedFullyByAddresses.push(result.address);
+                    }
                     expectingSignatureIndex++;
                 } else {
                     return verificationResult;
@@ -328,6 +335,31 @@ export class Utils {
         }
         verificationResult.verified = verificationResult.addresses.length === foundVerified;
         return verificationResult;
+    }
+
+    static areAllFieldsIncludedUpto(indexes: number[] | undefined, position: number | undefined): boolean {
+        if (!position) {
+            return false;
+        }
+        if (!indexes || !Array.isArray(indexes)) {
+            return false;
+        }
+        // Invalid if nothing signed or just OP_RETURN signed
+        if (indexes.length <= 1) {
+            return false;
+        }
+        // Build a map of all indexes that are signed
+        const signedMap = {};
+        for (const i of indexes) {
+            signedMap[i] = true;
+        }
+        // Verify that all indexes are signed up until position
+        for (let i = 0; i < position; i++) {
+            if (!signedMap[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -370,6 +402,7 @@ export class Utils {
         if (!detectedAddresses.length) {
             return {
                 verified: false,
+                signedFullyByAddresses: [],
                 addresses: []
             }
         }
