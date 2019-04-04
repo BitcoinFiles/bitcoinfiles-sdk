@@ -1,4 +1,5 @@
-import * as datapay from 'datapay';
+const globalAny: any = global;
+delete globalAny._bitcore;
 import * as bsv from 'bsv';
 import * as bsvMessage from 'bsv/message';
 import * as _ from 'lodash/core';
