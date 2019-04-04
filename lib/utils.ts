@@ -1,5 +1,5 @@
 const globalAny: any = global;
-delete globalAny._bitcore;
+delete globalAny._bsv;
 import * as bsv from 'bsv';
 import * as bsvMessage from 'bsv/message';
 import * as _ from 'lodash/core';
