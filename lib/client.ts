@@ -61,7 +61,7 @@ export class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
-    async create(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
+    async create(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string, indexes?: number[]}> }, callback?: Function): Promise<any> {
         if (!request.pay || !request.pay.key || request.pay.key === '') {
             return new Promise((resolve) => {
                 return this.callbackAndResolve(resolve, {
@@ -146,7 +146,7 @@ export class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
-    buildFile(request: { file: FileData, signatures?: Array<{ key: string }> }, callback?: Function): Promise<any> {
+    buildFile(request: { file: FileData, signatures?: Array<{ key: string, indexes?: number[] }> }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!request.file) {
                 return this.callbackAndResolve(resolve, {
@@ -201,7 +201,8 @@ export class Client {
                         const opReturnHexArray = Utils.buildAuthorIdentity({
                             args: args,
                             address: identityAddress,
-                            key: signatureKey.key
+                            key: signatureKey.key,
+                            indexes: signatureKey.indexes ? signatureKey.indexes : undefined
                         });
                         args = args.concat(opReturnHexArray);
                     }

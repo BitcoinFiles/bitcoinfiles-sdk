@@ -24,7 +24,7 @@ export function getFileUrl(url: string, fileHostBase = 'https://media.bitcoinfil
  * @param callback Optional callback to invoke
  * @param options Options override
  */
-export function buildFile(request: { file: FileData, signatures?: Array<{ key: string }> }, callback?: Function, options?: any): Promise<any> {
+export function buildFile(request: { file: FileData, signatures?: Array<{ key: string, number?: string[] }> }, callback?: Function, options?: any): Promise<any> {
   const client = new Client(options);
   return client.buildFile(request, callback);
 }
@@ -36,7 +36,7 @@ export function buildFile(request: { file: FileData, signatures?: Array<{ key: s
  * @param callback Optional callback to invoke
  * @param options Options override
  */
-export function createFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function, options?: any): Promise<any> {
+export function createFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string, indexes?: number[]}> }, callback?: Function, options?: any): Promise<any> {
   const client = new Client(options);
   return client.create(request, callback);
 }

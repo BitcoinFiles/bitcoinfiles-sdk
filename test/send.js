@@ -6,10 +6,10 @@ var index = require('../dist/index.js');
 describe('send function test', () => {
 
     // Utilities...nothing to see here
-    /*
+/*
     it('should send txs', async () => {
         var result = await axios.get(
-            'http://localhost:3000/api/v2/txs/mempool'
+            'https://api.bitindex.network/api/v2/txs/mempool'
         ).then(async (response) => {
             for (const tx of response.data.data) {
                 var fulltx = await axios.get(
@@ -41,5 +41,5 @@ describe('send function test', () => {
             console.log('done--');
         });
     });
-    */
+*/
 });

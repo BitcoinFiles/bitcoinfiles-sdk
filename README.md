@@ -119,7 +119,8 @@ Please note: By default the *encoding* is UTF-8 and if anything other is provide
       // Optional to sign the content with another set of private keys
       signatures: [
         {
-          key: "your wif key"
+          key: "your wif key",
+          indexes: [1, 2] // Optional specify what specific indexes to sign in the OP_RETURN. If ommitted, then signs everything.
         }
       ]
       */
@@ -323,7 +324,8 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
       },
       signatures: [
         {
-          key: "your wif key for signing"
+          key: "your wif key for signing",
+          // indexes: [0, 1, ...] // Optional. Choose which indexes to sign. If ommitted then everything is assumed to be signed (Default behaviour)
         }
       ]
     });
@@ -359,7 +361,8 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
         },
         signatures: [
             {
-                key: privateKey
+                key: privateKey,
+                // indexes: [0, 1, ...] // Optional. Choose which indexes to sign. If ommitted then everything is assumed to be signed (Default behaviour)
             }
         ]
     });
