@@ -25,7 +25,8 @@ Protocol Docs:
     // Optional to sign the content with another set of private keys
     signatures: [
         {
-            key: "your identity wif key"
+            key: "your identity wif key",
+            // indexes: [1, 2] // Optional specify what specific indexes to sign in the OP_RETURN. If omitted, then signs everything.
         }
     ]
     */
@@ -120,7 +121,7 @@ Please note: By default the *encoding* is UTF-8 and if anything other is provide
       signatures: [
         {
           key: "your wif key",
-          indexes: [1, 2] // Optional specify what specific indexes to sign in the OP_RETURN. If ommitted, then signs everything.
+          indexes: [1, 2] // Optional specify what specific indexes to sign in the OP_RETURN. If omitted, then signs everything.
         }
       ]
       */
@@ -325,7 +326,7 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
       signatures: [
         {
           key: "your wif key for signing",
-          // indexes: [0, 1, ...] // Optional. Choose which indexes to sign. If ommitted then everything is assumed to be signed (Default behaviour)
+          // indexes: [0, 1, ...] // Optional. Choose which indexes to sign. If omitted then everything is assumed to be signed (Default behaviour)
         }
       ]
     });
@@ -362,7 +363,7 @@ Note: defaults to https://media.bitcoinfiles.org hosting domain, but it can be c
         signatures: [
             {
                 key: privateKey,
-                // indexes: [0, 1, ...] // Optional. Choose which indexes to sign. If ommitted then everything is assumed to be signed (Default behaviour)
+                // indexes: [0, 1, ...] // Optional. Choose which indexes to sign. If omitted then everything is assumed to be signed (Default behaviour)
             }
         ]
     });
