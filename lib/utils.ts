@@ -64,10 +64,10 @@ export class Utils {
         }
         for (const index of indexes) {
             if (index > (argsToSign.length - 1)) {
-                throw new Error('index out of bounds');
+                throw new Error('index out of bounds: ' + index);
             }
             if (index < 0) {
-                throw new Error('index out of bounds negative');
+                throw new Error('index out of bounds negative: ' + index);
             }
             if (indexMap[index]) {
                 throw new Error('duplicate index');
@@ -98,7 +98,7 @@ export class Utils {
                     selectedArg = Buffer.from('00', 'hex');
                 }
             } else {
-                throw new Error('invalid argument type should be Buffer or a hex string');
+                throw new Error('invalid argument type should be Buffer or a hex string: ' + selectedArg);
             }
             usedArgs.push(selectedArg);
         }
@@ -141,10 +141,13 @@ export class Utils {
             signAllImplicit = true;
         }
 
-        for (let count = 0; count < indexes; count++) {
-            indexes[count] = '0x' + toHex(indexes[count]);
+        // const argsToSign: string[] = [];
+        const hexIndexes: string[] = [];
+        for (let count = 0; count < indexes.length; count++) {
+            hexIndexes[count] = '0x' + toHex(indexes[count]);
+            // argsToSign.push(payloadWithOpReturn[count]);
         }
-        const signature = Utils.signArguments(Object.assign({}, payload, { args: payloadWithOpReturn }));
+        const signature = Utils.signArguments(Object.assign({}, payload, { args: payloadWithOpReturn, indexes }));
         const constructed = [
             '0x' + Buffer.from(authorIdentityPrefix).toString('hex'),
             '0x' + Buffer.from('BITCOIN_ECDSA').toString('hex'),

@@ -140,7 +140,7 @@ export class Client {
         return '0x' + this.hexEncode(data).toLowerCase();
     }
 
-    /**
+    /**for (let count = 0; count < indexes
      * Builds the file and returns the parameters to send to datapay
      *
      * @param request create request

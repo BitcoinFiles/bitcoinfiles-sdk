@@ -121,6 +121,63 @@ describe('buildFile function test', () => {
         ]);
     });
 
+    it('should return success buildFile utf-8 and signs with public key for only a single specific indexes', async () => {
+        // buildFile request so we can inspect the resulting OP_RETURN field array
+        // We can use it to feed it into create function directly and inspect
+        var buildRequest = {
+            file: {
+                content: 'Hello world!',
+                contentType: 'text/plain',
+            },
+            signatures: [
+                {
+                    key: privateKey,
+                    indexes: [1]
+                }
+            ]
+        };
+        // Build the actual field
+        var result = await index.buildFile(buildRequest);
+        // The request was successful
+        expect(result.success).to.equal(true);
+        // Inspect the response
+        // Notice that the AUTHOR SIGNATURE protocol was added after the pipe '|' automatically
+        const expectedSigned1 = [
+            '0x31394878696756345179427633744870515663554551797131707a5a56646f417574',
+            '0x48656c6c6f20776f726c6421',
+            '0x746578742f706c61696e',
+            '0x7574662d38',
+            '0x00',
+            '0x7c',
+            '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
+            '0x424954434f494e5f4543445341',
+            '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
+            '0x1c779d9c2e87f035c70608bbdeea3b34ae257759d5cbc8d4e2ef49e88b2406d968749a854bdd4e1ba0e07d7737ce46d0335a6124f12f1f649c88a32124cb1c658b',
+            '0x01',
+        ];
+        expect(result.data).to.eql(expectedSigned1);
+        const manuallyCalculatedSignature = index.signArguments({
+            args: ['0x31394878696756345179427633744870515663554551797131707a5a56646f417574'],
+            key: privateKey,
+            address: address,
+        });
+        expect(expectedSigned1[9]).to.eql('0x' + Buffer.from(manuallyCalculatedSignature, 'base64').toString('hex'));
+        // Let's verify the signature explictly
+        // (It was already verified underneath in building it, but we check again for demo purposes)
+        var verifySigResult = await index.verifyAuthorIdentity(result.data, [address]);
+        expect(verifySigResult.verified).to.equal(true);
+        expect(verifySigResult.addresses).to.eql([
+            {
+                address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
+                verified: true,
+                fieldIndexesForSignature: [
+                    1,
+                ],
+                pos: 7
+            }
+        ]);
+    });
+
     it('should return success buildFile utf-8 and signs it with a public key with a filename', async () => {
         // buildFile request so we can inspect the resulting OP_RETURN field array
         // We can use it to feed it into create function directly and inspect
