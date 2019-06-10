@@ -703,5 +703,47 @@ describe('sign', () => {
             ]
         });
     });
+
+
+    it('should detect addresses from the payload 2', async () => {
+
+        const privateKey = '5KLpZB2Sfn4S7QXh6rRynXrVZXXT8zTdQBaj7Ngs3ZHpip5zd8r';
+        const address = '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz';
+        let key = 'zebra.jpg';
+        let value = '0f9e7b6542eba739bd407323f58d75327dd1d68a53d2a535337a4dcf0ddb0edc';
+        let type = 'b';
+        let data = ['19iG3WTYSsbyos3uJ733yK4zEioi1FesNU', key, value, type, 1556769439019];
+
+        data = data.concat(
+            '|',
+            index.buildAuthorIdentity({
+                args: data.map((val) => Buffer.from('' + val)),
+                address: address,
+                key: privateKey,
+            })
+        );
+
+
+        console.log('data', data);
+
+        const expectedSigned1 = [
+            '0x3139694733575459537362796f7333754a373333794b347a45696f69314665734e55',
+            '0x7a656272612e6a7067',
+            '0x30663965376236353432656261373339626434303733323366353864373533323764643164363861353364326135333533333761346463663064646230656463',
+            '0x62',
+            // '' + 1556769439019, // '0x31353536373639343339303139',
+            '0x31353536373639343339303139',
+            '0x313550636948473232534e4c514a584d6f5355615756693757537163376843667661',
+            '0x424954434f494e5f4543445341',
+            '0x31455868536247466945415a4345356565427655785436634256486872705057587a',
+            '0x1cfaa2939650c7f453a4bd9dbfa7cab719987e69d8fc86cab5c75bacf1967a41cb4108b75af8281e9aaeef4c95e01ba64c7436f8941c99fb40437d79680fc722a7',
+        ];
+        // Let's verify the signature explictly
+        // (It was already verified underneath in building it, but we check again for demo purposes)
+        var detectAddressesResult = await index.detectAndVerifyAuthorIdentities(expectedSigned1);
+        expect(detectAddressesResult).to.eql({
+            verified: true
+        });
+    });
 })
 

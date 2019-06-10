@@ -107,11 +107,13 @@ export class Utils {
         }
         const bufferWriter = new bsv.encoding.BufferWriter();
         for (const field of usedArgs) {
+
             let bf = field;
             if (!Buffer.isBuffer(field)) {
                 bf = new bsv.encoding.BufferReader(field);
                 bf = bf.buf;
             }
+            console.log('bf', bf);
             bufferWriter.write(bf);
         }
         const appData = bufferWriter.toBuffer();
