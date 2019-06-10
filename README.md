@@ -1,3 +1,4 @@
+Note: BitcoinFiles is now part of [MatterCloud](https://www.MatterCloud.net).
 # bitcoinfiles-sdk
 > BitcoinFiles Javascript SDK
 https://www.BitcoinFiles.org
