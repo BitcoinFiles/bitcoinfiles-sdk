@@ -723,9 +723,6 @@ describe('sign', () => {
             })
         );
 
-
-        console.log('data', data);
-
         const expectedSigned1 = [
             '0x3139694733575459537362796f7333754a373333794b347a45696f69314665734e55',
             '0x7a656272612e6a7067',
@@ -741,9 +738,13 @@ describe('sign', () => {
         // Let's verify the signature explictly
         // (It was already verified underneath in building it, but we check again for demo purposes)
         var detectAddressesResult = await index.detectAndVerifyAuthorIdentities(expectedSigned1);
-        expect(detectAddressesResult).to.eql({
-            verified: true
-        });
+        expect(detectAddressesResult).to.eql({ verified: true,
+            addresses:
+             [ { address: '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz',
+                 verified: true,
+                 pos: 6,
+                 fieldIndexesForSignature: [0, 1, 2, 3, 4, 5] } ],
+            signedFullyByAddresses: [ '1EXhSbGFiEAZCE5eeBvUxT6cBVHhrpPWXz' ] });
     });
 })
 
