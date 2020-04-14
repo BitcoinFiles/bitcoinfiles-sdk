@@ -3,19 +3,9 @@ import { Client } from './client';
 import { FileData } from './models/file-data.interface';
 import { Utils, VerificationResult } from './utils';
 
-/**
- * Decode a b:// or bitcoinasset:// URL to a hosting provider
- * @param url The url to decode. Correctly decodes b:// and bitcoinasset:// URLs and replaces it with the provided fileHostBase
- * @param fileHostBase Default: 'https://media.bitcoinfiles.org/'
- */
-export function getFileUrl(url: string, fileHostBase = 'https://media.bitcoinfiles.org/'): string {
-  const bRegex = /^(bitcoinasset|b):\/\/(.+)?#?/i;
-  const match = bRegex.exec(url);
-  if (match) {
-    return `${fileHostBase}${match[2]}`;
-  }
-  // Else return if there was no match
-  return url;
+const defaultOptions = {
+  bitcoinfiles_api_base: 'https://media.bitcoinfiles.org',
+  api_key: '',
 }
 
 /**
@@ -28,7 +18,6 @@ export function buildFile(request: { file: FileData, signatures?: Array<{ key: s
   const client = new Client(options);
   return client.buildFile(request, callback);
 }
-
 
 /**
  * Create a Bitcoin Data File
@@ -53,33 +42,14 @@ export function datapay(request: { data: any[], pay: { key: string }}, callback?
 }
 
 /**
- * Create a Bitcoin Data File
- * @param request Request to create a file
- * @param callback Optional callback to invoke
- * @param options Options override
- */
-export function find(request: {
-  address?: string,
-  contentType?: string,
-  name?: string,
-  tags?: string[],
-  offset?: number,
-  limit?: number,
-  sort?: any; // { age : -1, posts: 1 }
-}, callback?: Function, options?: any): Promise<any> {
-  const client = new Client(options);
-  return client.find(request, callback);
-}
-
-/**
  * Get a Bitcoin Data File by txid
  * @param txid txid of bitoin file
  * @param callback Optional callback to invoke
  * @param options Options override
  */
-export function get(txid: string, callback?: Function, options?: any): Promise<any> {
+export function getTx(txid: string, callback?: Function, options?: any): Promise<any> {
   const client = new Client(options);
-  return client.get(txid, callback);
+  return client.tx_get(txid, callback);
 }
 
 /**
@@ -115,6 +85,11 @@ export function detectAndVerifyAuthorIdentities(args: any[]): VerificationResult
   return Utils.detectAndVerifyAuthorIdentities(args);
 }
 
+export function instance(newOptions?: any): BitcoinFiles {
+  const mergedOptions = Object.assign({}, defaultOptions, newOptions);
+  return new BitcoinFiles(mergedOptions);
+}
+
 export default class BitcoinFiles {
   options = undefined;
 
@@ -123,9 +98,45 @@ export default class BitcoinFiles {
       this.options = options;
     }
   }
-
+  buildFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
+    const client = new Client(this.options);
+    return client.buildFile(request, callback);
+  }
   createFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
-    return createFile(request, callback, this.options);
+    const client = new Client(this.options);
+    return client.create(request, callback);
+  }
+  getFile(txid: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.file_get(txid, callback);
+  }
+  getTx(txid: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.tx_get(txid, callback);
+  }
+  getTxRaw(txid: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.txraw_get(txid, callback);
+  }
+  getBlock(blockhash: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_get(blockhash, callback);
+  }
+  getBlockRaw(blockhash: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getRaw(blockhash, callback);
+  }
+  getBlockHeader(blockhash: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getHeader(blockhash, callback);
+  }
+  getBlockHeaderRaw(blockhash: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getHeaderRaw(blockhash, callback);
+  }
+  getBlockHash(height: number, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getBlockHash(height, callback);
   }
 }
 
