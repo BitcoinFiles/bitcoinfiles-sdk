@@ -20,6 +20,15 @@ npm install bitcoinfiles-sdk --save
 var bitcoinfiles = require('bitcoinfiles-sdk');
 ```
 
+# Bitcoin File System
+
+**Bitcoin Files and Block Service powered by the Bitcoin Files Protocol (`b://` files)**
+
+<a href='https://www.bitcoinfiles.org/'>www.bitcoinfiles.org</a>
+
+**Links**:
+
+- <a href='https://github.com/bitcoinfiles/bitcoinfiles-sdk'>Javascript SDK: bitcoinfiles-sdk</a>
 
 
 ## Get File
@@ -103,6 +112,34 @@ This endpoint retrieves transaction at txid
 Parameter | Description
 --------- | -----------
 txid |  Txid of the transaction
+
+# Block Delivery Network
+
+## Get Blockchain Info
+
+Get blockchain information
+
+```shell
+curl https://media.bitcoinfiles.org/blockchain/status
+```
+
+```javascript
+const bitcoinfiles = require('bitcoinfiles-sdk');
+const result = await bitcoinfiles.getBlockchainInfo();
+```
+
+> The above command returns the blockchain info
+
+```javascript
+{"chain":"main","blocks":630756,"bestblockhash":"0000000000000000038445394e87e5103343f34f91da9f4c9fd1a754e5e16b31","difficulty":197513539700.0701,"mediantime":1586980990,"verificationprogress":0.9999899941505928,"chainwork":"000000000000000000000000000000000000000001060b7473a70fece894e1fa"}
+```
+
+This endpoint retrieves blockchain info status
+
+### HTTP Request
+
+`GET https://media.bitcoinfiles.org/blockchain/status`
+
 
 ## Get Block
 
@@ -232,6 +269,59 @@ Parameter | Description
 blockhash |  Blockhash of the block
 
 
+## Get Filtered Block
+
+Get raw transactions filtered within a block.
+
+Specify an arbitrary hex string to match anywhere in a transaction.
+
+You can do logical OR by piping multiple hex sequences togther.
+
+Example 1:
+
+'01234|66666' will match all transactions in a block that have `01234` or `66666` appearing somewhere in the raw transaction.
+
+`747765746368` is the word 'twetch' and you can find all transactions that have that string anywhere.
+
+Example 2:
+
+'0123.+88|447755' matches all transactions that have `0123` pattern with anything in between followed by an `88` OR `447755`
+is found anywhere in the transaction.
+
+```shell
+curl https://media.bitcoinfiles.org/block/00000000000000000013fd298b5567aa19f71de983f04f6d3eea1660c2d2b177/filter/747765746368
+```
+
+```javascript
+const bitcoinfiles = require('bitcoinfiles-sdk');
+const result = await bitcoinfiles.getBlockFiltered('00000000ac21f2862aaab177fd3c5c8b395de842f84d88c9cf3420b2d393e550', '0123456|747765746368');
+
+const result2 = await bitcoinfiles.getBlockFiltered('00000000ac21f2862aaab177fd3c5c8b395de842f84d88c9cf3420b2d393e550', '0123.+88|447755');
+```
+
+> The above command returns the filtered
+
+```
+[ "0100000001d95b67b533205196cde0bd42f4cc139fa4eff968347fe57c28b06e8495cc8157040000006b483045022100f8181bfa7c18da1460be22a81e3866740fc60261e0bb3ce1f78736371358f96d0220554e6eb8a3ff68e2c51aee2d096045f5a8fe99e3f69c9cca0673edbe798a1a8b4121030a548df8f30d0bfb0499c4be4a287a2bd5a42599cea14e75ff1a3e822766867effffffff050000000000000000fd0101006a22314c6f6f6b79327976626a576958453631456862395333337745327744534c566a44067477657463682432383134623563392d356439392d343930302d616538612d656163653039623062366462017c22313550636948473232534e4c514a584d6f53556157566937575371633768436676610d424954434f494e5f454344534122314e58544835356d336e566f504c757a47526b6b616b65736d58433341726d5544534c58494d3249346d74356d4e5174652b30594864454c42363662754c39427a776562656457792b486b637345306e59473336366c59426b4b6278464b632f476e58592b6e624c6355354f444c516e584554745265446e334d6b3d79cc0000000000001976a9143816920e94f43f603cae571b545203aec4516a3788ac79cc0000000000001976a914c23979eba63d6b5941145316618acabe83735cfb88acc8630600000000001976a91405186ff0710ed004229e644c0653b2985c648a2388ac4baff239000000001976a914264fb2bb20ec9a627c6dbeb3ba51534847ec4c3e88ac00000000",
+...
+]
+
+```
+
+This endpoint retrieves filtered block at blockhash
+
+### HTTP Request
+
+`GET https://media.bitcoinfiles.org/block/00000000000000000013fd298b5567aa19f71de983f04f6d3eea1660c2d2b177/filter/747765746368|0123`
+
+### URL Parameters
+
+Parameter | Description
+--------- | -----------
+blockhash |  Blockhash of the block
+filterStr |  Filter string to match in hex in the block. You can use a pipe | to seperate with logical OR to match any of them.
+
+
 ## Get Blockheader
 
 Get blockheader by blockhash
@@ -345,6 +435,7 @@ This endpoint retrieves blockhash at height
 Parameter | Description
 --------- | -----------
 height |  Height of the blockhash to get
+
 
 
 ## Build and Test

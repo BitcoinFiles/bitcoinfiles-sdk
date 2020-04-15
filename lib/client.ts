@@ -414,4 +414,18 @@ export class Client {
             })
         });
     }
+    block_getBlockchainInfo(callback?: Function): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.get(this.options.bitcoinfiles_api_base + `/blockchain/status`,
+                {
+                    headers: this.getHeaders()
+                }
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
+
 }

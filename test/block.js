@@ -7,6 +7,20 @@ const options = {
 }
 
 describe('block', () => {
+    it('Can query for blockchain info', async () => {
+        //     {"chain":"main","blocks":630756,"bestblockhash":"0000000000000000038445394e87e5103343f34f91da9f4c9fd1a754e5e16b31","difficulty":197513539700.0701,"mediantime":1586980990,"verificationprogress":0.9999899941505928,"chainwork":"000000000000000000000000000000000000000001060b7473a70fece894e1fa"}
+
+        var bf = index.instance(options);
+        const result = await bf.getBlockchainInfo();
+
+        expect(result.chain).to.eql('main');
+        expect(!!result.bestblockhash).to.eql(true);
+        expect(!!result.difficulty).to.eql(true);
+        expect(!!result.blocks).to.eql(true);
+        expect(!!result.verificationprogress).to.eql(true);
+        expect(!!result.mediantime).to.eql(true);
+    });
+
     it('Can query for raw header by blockhash', async () => {
         try {
             var bf = index.instance(options);

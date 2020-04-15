@@ -142,6 +142,10 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_getBlockHash(height, callback);
   }
+  getBlockchainInfo(callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getBlockchainInfo(callback);
+  }
 }
 
 try {
