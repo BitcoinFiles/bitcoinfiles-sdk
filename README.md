@@ -22,14 +22,13 @@ var bitcoinfiles = require('bitcoinfiles-sdk');
 
 # Bitcoin File System
 
-**Bitcoin Files and Block Service powered by the Bitcoin Files Protocol (`b://` files)**
-
-<a href='https://www.bitcoinfiles.org/'>www.bitcoinfiles.org</a>
+**Bitcoin Files and Block Delivery Service powered by the Bitcoin Files Protocol (`b://` files)**
 
 **Links**:
 
 - <a href='https://github.com/bitcoinfiles/bitcoinfiles-sdk'>Javascript SDK: bitcoinfiles-sdk</a>
-
+- <a href='https://www.bitcoinfiles.org/'>www.bitcoinfiles.org</a>
+- <a href='https://media.bitcoinfiles.org/'>Endpoint: media.bitcoinfiles.org</a>
 
 ## Get File
 
@@ -114,6 +113,14 @@ Parameter | Description
 txid |  Txid of the transaction
 
 # Block Delivery Network
+
+**Bitcoin Files and Block Delivery Service powered by the Bitcoin Files Protocol (`b://` files)**
+
+**Links**:
+
+- <a href='https://github.com/bitcoinfiles/bitcoinfiles-sdk'>Javascript SDK: bitcoinfiles-sdk</a>
+- <a href='https://www.bitcoinfiles.org/'>www.bitcoinfiles.org</a>
+- <a href='https://media.bitcoinfiles.org/'>Endpoint: media.bitcoinfiles.org</a>
 
 ## Get Blockchain Info
 
