@@ -346,6 +346,21 @@ export class Client {
             })
         });
     }
+
+    block_getFilter(blockhash: string, filter: string, callback?: Function): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.get(this.options.bitcoinfiles_api_base + `/block/${blockhash}/filter/${filter}`,
+                {
+                    headers: this.getHeaders()
+                }
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
+
     block_get(blockhash: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             axios.get(this.options.bitcoinfiles_api_base + `/block/${blockhash}`,

@@ -3,12 +3,8 @@ var expect = require('chai').expect;
 var index = require('../dist/index.js');
 
 const options = {
-    bitdb_api_base: 'https://babel.bitdb.network/q/1DHDifPvtPgKFPZMRSxmVHhiPvFmxZwbfh/',
-    bitdb_api_key: '12cHytySdrQGRtuvvkVde2j3e74rmEn5TM',
-    // bitcoinfiles_api_base: 'http://localhost:8082',
-    // bitcoinfiles_blocks_base: 'http://localhost:8082',
-    api_key: '',
-  }
+    bitcoinfiles_api_base: 'http://localhost:8082',
+}
 
 describe('block', () => {
     it('Can query for raw header by blockhash', async () => {
@@ -137,8 +133,28 @@ describe('block', () => {
         });
     });
 
-    it('Get by height then blockhash', async () => {
+    it('Can query by one string match', async () => {
+        var bf = index.instance(options);
+        const application = Buffer.from('BitcoinFiles.org', 'utf8').toString('hex');
+        const filtered = await bf.getBlockFiltered(
+            '00000000000000000013fd298b5567aa19f71de983f04f6d3eea1660c2d2b177',
+            application
+        );
+        expect('426974636f696e46696c65732e6f7267').to.eql(application);
+        expect(filtered.length).to.eql(1);
+    });
 
+    it('Can not find any results with no match', async () => {
+        var bf = index.instance(options);
+        const application = Buffer.from('BitcoinFiles.org', 'utf8').toString('hex');
+        const filtered = await bf.getBlockFiltered(
+            '00000000000000000013fd298b5567aa19f71de983f04f6d3eea1660c2d2b177',
+            `54332545534|0123456789`
+        );
+        expect(filtered.length).to.eql(0);
+    });
+    it('Can query by boost match', async () => {
+        // 630,527
     });
 });
 

@@ -122,6 +122,10 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_get(blockhash, callback);
   }
+  getBlockFiltered(blockhash: string, filter: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getFilter(blockhash, filter, callback);
+  }
   getBlockRaw(blockhash: string, callback?: Function): Promise<any> {
     const apiClient = new Client(this.options);
     return apiClient.block_getRaw(blockhash, callback);
