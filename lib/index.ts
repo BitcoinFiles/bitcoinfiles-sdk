@@ -146,6 +146,9 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_getBlockchainInfo(callback);
   }
+  crawl(callback?: Function) {
+    return null;
+  }
 }
 
 try {
