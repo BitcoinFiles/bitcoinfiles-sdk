@@ -3,7 +3,7 @@ var expect = require('chai').expect;
 var index = require('../dist/index.js');
 var EventSource = require('eventsource');
 
-var url = 'http://localhost:3001/stream';
+var url = 'https://stream.bitcoinfiles.org/events';
 describe('sse', () => {
     // Todo
     it('listen to events', async () => {
