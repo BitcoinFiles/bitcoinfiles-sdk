@@ -428,4 +428,46 @@ export class Client {
         });
     }
 
+    block_getTxOutProof(txid: string, callback?: Function): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.get(this.options.bitcoinfiles_api_base + `/txproof/${txid}`,
+                {
+                    headers: this.getHeaders()
+                }
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
+
+    block_getTxOutProofString(txid: string, callback?: Function): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.get(this.options.bitcoinfiles_api_base + `/txproof/${txid}/raw`,
+                {
+                    headers: this.getHeaders()
+                }
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
+
+    block_verifyTxOutProof(proof: string, callback?: Function): Promise<any> {
+        return new Promise((resolve, reject) => {
+            console.log('bitvoicn sdk client txproof verify proof is ', proof);
+            axios.get(this.options.bitcoinfiles_api_base + `/txproof/verify/${proof}`,
+                {
+                    headers: this.getHeaders()
+                }
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
 }

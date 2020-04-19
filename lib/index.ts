@@ -146,6 +146,19 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_getBlockchainInfo(callback);
   }
+
+  getTxOutProof(txid: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getTxOutProof(txid, callback);
+  }
+  getTxOutProofString(txid: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_getTxOutProofString(txid, callback);
+  }
+  verifyTxOutProofString(proof: string, callback?: Function): Promise<any> {
+    const apiClient = new Client(this.options);
+    return apiClient.block_verifyTxOutProof(proof, callback);
+  }
   crawl(callback?: Function) {
     return null;
   }

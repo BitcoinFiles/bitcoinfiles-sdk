@@ -113,7 +113,6 @@ export class Utils {
                 bf = new bsv.encoding.BufferReader(field);
                 bf = bf.buf;
             }
-            console.log('bf', bf);
             bufferWriter.write(bf);
         }
         const appData = bufferWriter.toBuffer();

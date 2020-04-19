@@ -3,19 +3,22 @@ var expect = require('chai').expect;
 var index = require('../dist/index.js');
 var EventSource = require('eventsource');
 
-var url = 'https://stream.bitcoinfiles.org/events';
+var url = 'https://stream.bitcoinfiles.org/mempool';
+var blocks = 'https://stream.bitcoinfiles.org/blockheaders';
 describe('sse', () => {
-    // Todo
-    it('listen to events', async () => {
+   /* it('listen to events', async () => {
         var es = new EventSource(url + '?filter=747765746368');
 
         es.onmessage = function (event) {
-            console.log('event', event);
+            console.log(event);
         };
 
-        es.addEventListener('any', function (event) {
-            console.log('eventName', eventName, event);
-        });
-    });
+        var es2 = new EventSource(blocks);
+
+        es2.onmessage = function (event) {
+            console.log(event);
+        };
+
+    });*/
 });
 
