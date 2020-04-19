@@ -458,7 +458,6 @@ export class Client {
 
     block_verifyTxOutProof(proof: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            console.log('bitvoicn sdk client txproof verify proof is ', proof);
             axios.get(this.options.bitcoinfiles_api_base + `/txproof/verify/${proof}`,
                 {
                     headers: this.getHeaders()

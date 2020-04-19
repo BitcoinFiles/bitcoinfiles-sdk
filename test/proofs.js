@@ -7,6 +7,19 @@ const options = {
 }
 
 describe('proofs', () => {
+    it('Can handle a tx with no merkle proof found', async () => {
+        var bf = index.instance(options);
+        try {
+            await bf.getTxOutProof('133fc9e55db4039d5b48df8aab31cd2366d98d64285fdc2aa53c17aa895b476e');
+        } catch (err) {
+            expect(err).to.eql({
+                "code": 404,
+                "error": "Error: Transaction not yet in block",
+                "message": "Error: Transaction not yet in block",
+                "success": false,
+            });
+        }
+    })
     it('Can query for tx out proof', async () => {
         var bf = index.instance(options);
         const result = await bf.getTxOutProof('633fc9e55db4039d5b48df8aab31cd2366d98d64285fdc2aa53c17aa895b476e');
