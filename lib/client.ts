@@ -347,9 +347,20 @@ export class Client {
         });
     }
 
-    block_getFilter(blockhash: string, filter: string, callback?: Function): Promise<any> {
+    block_getWithFilter(blockhash: string, filter?: {
+        base?: string,
+        outputFilter?: string[],
+        outputFilterId?: string,
+      }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/block/${blockhash}/filter/${filter}`,
+            let outputFilterStr = '';
+            if (filter && filter.outputFilter) {
+                outputFilterStr = filter.outputFilter.join(',');
+            }
+            let filterBase = filter && filter.base ? `/${filter.base}` : '';
+            let filterOutputFilterId = filter && filter.outputFilterId ? filter.outputFilterId : '';
+            const url = this.options.bitcoinfiles_api_base + `/block/${blockhash}/tx/filter${filterBase}?outputFilter=${outputFilterStr}&outputFilterId=${filterOutputFilterId}`;
+            axios.get(url,
                 {
                     headers: this.getHeaders()
                 }
@@ -469,4 +480,35 @@ export class Client {
             })
         });
     }
+
+    outputfilter_save(outputFilterId: string | null, outputs: { add: string[], remove: string[] }, callback?: Function): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.post(this.options.bitcoinfiles_api_base + `/outputfilter` + (outputFilterId ? `/${outputFilterId}` : ''),
+            outputs,
+                {
+                    headers: this.getHeaders()
+                }
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
+
+    outputfilter_get(outputFilterId: string, callback?: Function): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.get(this.options.bitcoinfiles_api_base + `/outputfilter` + (outputFilterId ? `/${outputFilterId}` : ''),
+                {
+                    headers: this.getHeaders()
+                }
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
+
+
 }

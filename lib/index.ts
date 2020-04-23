@@ -122,10 +122,15 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_get(blockhash, callback);
   }
-  getBlockFiltered(blockhash: string, filter: string, callback?: Function): Promise<any> {
+  getBlockFiltered(blockhash: string, filterOptions?: {
+      base?: string,
+      outputFilter?: string[],
+      outputFilterId?: string,
+    }, callback?: Function): Promise<any> {
     const apiClient = new Client(this.options);
-    return apiClient.block_getFilter(blockhash, filter, callback);
+    return apiClient.block_getWithFilter(blockhash, filterOptions, callback);
   }
+
   getBlockRaw(blockhash: string, callback?: Function): Promise<any> {
     const apiClient = new Client(this.options);
     return apiClient.block_getRaw(blockhash, callback);
@@ -146,7 +151,6 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_getBlockchainInfo(callback);
   }
-
   getTxOutProof(txid: string, callback?: Function): Promise<any> {
     const apiClient = new Client(this.options);
     return apiClient.block_getTxOutProof(txid, callback);
@@ -159,8 +163,13 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_verifyTxOutProof(proof, callback);
   }
-  crawl(callback?: Function) {
-    return null;
+  saveOutputFilter(outputs: { add: string[], remove: string[] }, outputfilterId : string | null, callback?: Function) {
+    const apiClient = new Client(this.options);
+    return apiClient.outputfilter_save(outputfilterId, outputs, callback);
+  }
+  getOutputFilter(outputfilterId : string, callback?: Function) {
+    const apiClient = new Client(this.options);
+    return apiClient.outputfilter_get(outputfilterId, callback);
   }
 }
 

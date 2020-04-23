@@ -3,7 +3,7 @@ var expect = require('chai').expect;
 var index = require('../dist/index.js');
 
 const options = {
-    // bitcoinfiles_api_base: 'http://localhost:8082',
+    bitcoinfiles_api_base: 'http://localhost:8082',
 }
 
 describe('block', () => {
@@ -118,8 +118,7 @@ describe('block', () => {
 
         var bf = index.instance(options);
         const block = await bf.getBlock('0000000082b5015589a3fdf2d4baff403e6f0be035a5d9742c1cae6295464449');
-        expect(block).to.eql({"header":{"hash":"0000000082b5015589a3fdf2d4baff403e6f0be035a5d9742c1cae6295464449","version":1,"prevHash":"000000006a625f06636b8bb6ac7b960a8d03705d1ace08b1a19da3fdcc99ddbd","merkleRoot":"999e1c837c76a1b7fbb7e57baf87b309960f5ffefbf2a9b95dd890602272f644","time":1231470173,"bits":486604799,"nonce":1844305925,"height":3},"tx":[{"hash":"999e1c837c76a1b7fbb7e57baf87b309960f5ffefbf2a9b95dd890602272f644","version":1,"inputs":[{"prevTxId":"0000000000000000000000000000000000000000000000000000000000000000","outputIndex":4294967295,"sequenceNumber":4294967295,"script":"04ffff001d010e"}],"outputs":[{"satoshis":5000000000,"script":"410494b9d3e76c5b1629ecf97fff95d7a4bbdac87cc26099ada28066c6ff1eb9191223cd897194a08d0c2726c5747f1db49e8cf90e75dc3e3550ae9b30086f3cd5aaac"}],"nLockTime":0}],"block":{"header":{"hash":"0000000082b5015589a3fdf2d4baff403e6f0be035a5d9742c1cae6295464449","version":1,"prevHash":"000000006a625f06636b8bb6ac7b960a8d03705d1ace08b1a19da3fdcc99ddbd","merkleRoot":"999e1c837c76a1b7fbb7e57baf87b309960f5ffefbf2a9b95dd890602272f644","time":1231470173,"bits":486604799,"nonce":1844305925},"transactions":[{"hash":"999e1c837c76a1b7fbb7e57baf87b309960f5ffefbf2a9b95dd890602272f644","version":1,"inputs":[{"prevTxId":"0000000000000000000000000000000000000000000000000000000000000000","outputIndex":4294967295,"sequenceNumber":4294967295,"script":"04ffff001d010e"}],"outputs":[{"satoshis":5000000000,"script":"410494b9d3e76c5b1629ecf97fff95d7a4bbdac87cc26099ada28066c6ff1eb9191223cd897194a08d0c2726c5747f1db49e8cf90e75dc3e3550ae9b30086f3cd5aaac"}],"nLockTime":0}]}});
-
+        expect(block).to.eql('01000000bddd99ccfda39da1b108ce1a5d70038d0a967bacb68b6b63065f626a0000000044f672226090d85db9a9f2fbfe5f0f9609b387af7be5b7fbb7a1767c831c9e995dbe6649ffff001d05e0ed6d0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d010effffffff0100f2052a0100000043410494b9d3e76c5b1629ecf97fff95d7a4bbdac87cc26099ada28066c6ff1eb9191223cd897194a08d0c2726c5747f1db49e8cf90e75dc3e3550ae9b30086f3cd5aaac00000000');
     });
 
     it('Can query by block height', async () => {
@@ -152,7 +151,9 @@ describe('block', () => {
         const application = Buffer.from('BitcoinFiles.org', 'utf8').toString('hex');
         const filtered = await bf.getBlockFiltered(
             '00000000000000000013fd298b5567aa19f71de983f04f6d3eea1660c2d2b177',
-            application
+            {
+                base: application
+            }
         );
         expect('426974636f696e46696c65732e6f7267').to.eql(application);
         expect(filtered.length).to.eql(1);
@@ -163,12 +164,11 @@ describe('block', () => {
         const application = Buffer.from('BitcoinFiles.org', 'utf8').toString('hex');
         const filtered = await bf.getBlockFiltered(
             '00000000000000000013fd298b5567aa19f71de983f04f6d3eea1660c2d2b177',
-            `54332545534|0123456789`
+            {
+                base: `54332545534|0123456789`
+            }
         );
         expect(filtered.length).to.eql(0);
-    });
-    it('Can query by boost match', async () => {
-        // 630,527
     });
 });
 
