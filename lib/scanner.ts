@@ -34,7 +34,6 @@ const jsonFileWriter = async (filePath, data) => {
     })
 };
 
-
 export class BlockchainScanner {
     options = defaultOptions;
     filterParams: any = {};
@@ -293,7 +292,6 @@ export class BlockchainScanner {
                 })
             }
             if (!blockhash || !foundBlock) {
-                console.log('sleeping', this.nextHeight_);
                 await this.sleep(10);
             }
         }
