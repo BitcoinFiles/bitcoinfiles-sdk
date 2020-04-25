@@ -166,7 +166,7 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_verifyTxOutProof(proof, callback);
   }
-  saveOutputFilter(outputs: { add: string[], remove: string[] }, callback?: Function) {
+  saveOutputFilter(outputs: string[], callback?: Function) {
     const apiClient = new Client(this.options);
     return apiClient.outputfilter_save(outputs, callback);
   }

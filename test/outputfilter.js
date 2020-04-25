@@ -3,7 +3,7 @@ var expect = require('chai').expect;
 var index = require('../dist/index.js');
 
 const options = {
-    // api_base: 'http://localhost:8082',
+    api_base: 'http://localhost:8082',
     media_base: 'http://localhost:8082',
     // stream_base: 'http://localhost:8083',
 }
@@ -14,18 +14,6 @@ describe('outputfilter', () => {
 
         try {
             await bf.saveOutputFilter([]);
-            expect(true).to.eql(false);
-        } catch (ex) {
-            expect(ex).to.eql({
-                success: false,
-                code: 422,
-                error: '',
-                message: 'invalid arguments'
-            });
-        }
-
-        try {
-            await bf.saveOutputFilter(['3b508a9da0879dd55619e06f5bd656696f77ba879aaa99e0eb22cedd7dd4846']);
             expect(true).to.eql(false);
         } catch (ex) {
             expect(ex).to.eql({
@@ -48,42 +36,19 @@ describe('outputfilter', () => {
             });
         }
 
-        try {
-            await bf.saveOutputFilter(['dc36f3baa3a9b7e96827928760c07a160579b0a531814e3a3900c1c4112c4a92*e7']);
-            expect(true).to.eql(false);
-        } catch (ex) {
-            expect(ex).to.eql({
-                success: false,
-                code: 422,
-                error: '',
-                message: 'invalid arguments'
-            });
-        }
-
-        try {
-            await bf.saveOutputFilter(['dc36f3baa9b7e96827928760c07a160579b0a531814e3a3900c1c4112c4a92e7--0']);
-            expect(true).to.eql(false);
-        } catch (ex) {
-            expect(ex).to.eql({
-                success: false,
-                code: 422,
-                error: '',
-                message: 'invalid arguments'
-            });
-        }
     });
 
     it('Create and get outputfilter', async () => {
         var bf = index.instance(options);
-        const saveResult = await bf.saveOutputFilter({
-            add: [
+        const saveResult = await bf.saveOutputFilter(
+            [
                 '12UhHtxuMMftNodp5nwoDYfBd4QaLm6Sz9',
                 '12UhHtxuMMftNodp5nwoDYfBd4QaLm6Sz9', // remove duplicates
                 '0c629d7b8069f917b7f31942db3ec94bf4c4662e17c05b1d5c059e448d1470af-2',
                 '1ALSfdsAHraUzu8HhAE9Cep9ca1ju3fjt2',
                 '65503f4f336d4528fec7e645f81f1bfd655e837e8460c33b677f6995955e0b95',
             ]
-        });
+        );
         expect(saveResult).to.eql({
            "result": {
                "id": "8d2267f19a9e8524e3d253631e19bf163bcefb5de74e1ad86c36365afe2a3f87"

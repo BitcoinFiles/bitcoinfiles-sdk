@@ -11,17 +11,18 @@ const options = {
 }
 
 describe('scanner', () => {
-    it('Can query for blockchain info', async () => {
-        /*
+    it('Can twetch txs', async () => {
         const crawler = await index.scanner({
             initHeight: 632051,
+            saveUpdatedHeight: true,
+            id: 'main',
         })
         .filter({
             outputFilter: ['1Twetcht1cTUxpdDoX5HQRpoXeuupAdyf']
         })
         .mempool(function(e, self){
             const tx = new bsv.Transaction(e.raw);
-            // console.log('mempool', tx.hash);
+            console.log('mempool', tx.hash);
         })
         .block((block, self) => {
             for (const e of block.tx) {
@@ -34,7 +35,7 @@ describe('scanner', () => {
         })
 
         // Uncomment to start
-        .start();*/
+        .start();
     });
 });
 

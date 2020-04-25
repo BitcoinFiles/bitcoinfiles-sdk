@@ -483,7 +483,7 @@ export class Client {
         });
     }
 
-    outputfilter_save(outputs: { add: string[], remove: string[] }, callback?: Function): Promise<any> {
+    outputfilter_save(outputs: string[], callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             const opts = {
                 headers: this.getHeaders(),
@@ -491,7 +491,9 @@ export class Client {
             }
             opts['maxBodyLength'] = 1000000000;
             axios.post(this.options.api_base + `/outputfilter`,
-                outputs,
+                {
+                    add: outputs
+                },
                 opts,
                 ).then((response) => {
                     return this.resolveOrCallback(resolve, response.data, callback);

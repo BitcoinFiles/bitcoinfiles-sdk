@@ -6,6 +6,34 @@ const defaultOptions = {
     stream_base: 'https://stream.bitcoinfiles.org',
 }
 const axios = require('axios');
+const fs = require('fs');
+
+const jsonFileReader = async (filePath) => {
+    return new Promise((resolve, reject) => {
+      fs.readFile(filePath, (err, fileData) => {
+        if (err) {
+          return reject(err);
+        }
+        try {
+            const object = JSON.parse(fileData)
+            return resolve(object);
+        } catch(err) {
+          console.log('fatal', err);
+          return reject(null);
+        }
+      })
+    });
+}
+
+const jsonFileWriter = async (filePath, data) => {
+    return new Promise(function(resolve, reject) {
+        fs.writeFile(filePath, JSON.stringify(data), 'utf8', function(err) {
+            if (err) reject(err);
+            else resolve();
+        });
+    })
+};
+
 
 export class BlockchainScanner {
     options = defaultOptions;
@@ -14,22 +42,62 @@ export class BlockchainScanner {
     mempoolConnectionEventSource;
     mempoolSecondaryConnectionEventSource;
     nextHeight_ = 0;
-
+    saveHeightPath;
+    saveUpdatedHeight;
     mempoolHandler;
     blockHandler;
     errorHandler;
     blockIntervalTimer;
-
+    id;
     constructor(options?: {
-        initHeight: number
+        initHeight: number,
+        saveUpdatedHeight?: boolean,
+        saveHeightPath?: string,
+        id?: string,
     }) {
         this.options = Object.assign({}, this.options, options);
         this.nextHeight_ = options && options.initHeight ? options.initHeight : 0;
         this.blockIntervalTimer = null;
+        this.id = options && options.id ? options.id : '';
+        this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
+        this.saveHeightPath = options && options.saveHeightPath ? options.saveHeightPath : `./bitcoinfiles_scanner_${this.getId()}.json`;
+    }
+
+    getId(): string {
+        return this.id;
+    }
+
+    async loadSavedHeight() {
+        if (!this.saveUpdatedHeight) {
+            return;
+        }
+        await jsonFileReader(this.saveHeightPath)
+        .then(async (data: any) => {
+            if (data) {
+                this.nextHeight_ = data['nextHeight'];
+                return;
+            } else {
+                await jsonFileWriter(this.saveHeightPath, { nextHeight: this.nextHeight_ });
+            }
+        }).catch((error) => {
+            // Create the file if it does not exist
+            if (error.errno === -2) {
+                jsonFileWriter(this.saveHeightPath, { nextHeight: this.nextHeight_ });
+            } else {
+                console.log('loadSavedHeight', error);
+            }
+        });
     }
 
     nextHeight() {
        return this.nextHeight_;
+    };
+
+    async incrementNextHeight() {
+        if (this.saveUpdatedHeight) {
+            await jsonFileWriter(this.saveHeightPath, { nextHeight: this.nextHeight_ + 1 });
+        }
+        this.nextHeight_ += 1;
     };
 
     filter(params: {
@@ -77,6 +145,8 @@ export class BlockchainScanner {
             }
             return true;
         }
+        await this.loadSavedHeight();
+
         this.started = true;
         this.connectMempool();
         this.connectBlocks();
@@ -209,10 +279,10 @@ export class BlockchainScanner {
             }
             let foundBlock = false;
             if (blockhash) {
-                await axios.get(this.getBlockUrl(blockhash)).then((response) => {
+                await axios.get(this.getBlockUrl(blockhash)).then(async (response) => {
                     this.triggerBlock(response.data);
                     foundBlock = true;
-                    this.nextHeight_ += 1;
+                    await this.incrementNextHeight();
                 }).catch((ex) => {
                     // 404 means we reached the tip.
                     // Todo: Add re-org protection later by tracking the last N blockhashes
@@ -223,6 +293,7 @@ export class BlockchainScanner {
                 })
             }
             if (!blockhash || !foundBlock) {
+                console.log('sleeping', this.nextHeight_);
                 await this.sleep(10);
             }
         }
