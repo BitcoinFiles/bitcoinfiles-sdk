@@ -7,7 +7,7 @@ const defaultOptions = {
 }
 const axios = require('axios');
 
-export class BlockCrawler {
+export class BlockchainScanner {
     options = defaultOptions;
     filterParams: any = {};
     started = false;

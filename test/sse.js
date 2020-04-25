@@ -5,9 +5,9 @@ var EventSource = require('eventsource');
 var bsv = require('bsv');
 var fs = require('fs');
 const options = {
-    api_base: 'http://localhost:8082',
-    media_base: 'http://localhost:8082',
-    stream_base: 'http://localhost:8083',
+    // api_base: 'http://localhost:8082',
+    // media_base: 'http://localhost:8082',
+    // stream_base: 'http://localhost:8083',
 }
 
 describe('sse', () => {
@@ -41,7 +41,7 @@ describe('sse', () => {
         };
     });
     */
-   it('listen to 1000000 addresses', async () => {
+   /* it('listen to 1000000 addresses', async () => {
     var bf = index.instance(options);
     console.log('reading file');
     fs.readFile('./sseaddresses.json', async (err, fileData) => {
@@ -78,7 +78,7 @@ describe('sse', () => {
 
         }
       })
-    });
+    });*/
     /*
 
     it('listen to 1000000 addresses', async () => {

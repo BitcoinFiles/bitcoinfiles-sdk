@@ -2,7 +2,7 @@
 import { Client } from './client';
 import { FileData } from './models/file-data.interface';
 import { Utils, VerificationResult } from './utils';
-import { BlockCrawler } from './crawler';
+import { BlockchainScanner } from './scanner';
 
 const defaultOptions = {
   api_key: '',
@@ -175,10 +175,13 @@ export default class BitcoinFiles {
     return apiClient.outputfilter_get(outputfilterId, callback);
   }
 
-  crawler(options) {
-    const crawler = new BlockCrawler(Object.assign({}, this.options, options));
-    return crawler;
+  scanner(options?) {
+    return new BlockchainScanner(Object.assign({}, this.options, options));
   }
+}
+
+export function scanner(options?) {
+  return new BlockchainScanner(Object.assign({}, defaultOptions, options));
 }
 
 try {

@@ -1,4 +1,4 @@
-import * as datapay from 'datapay';
+import * as filepay from 'filepay';
 import axios from 'axios';
 import { FileData } from './models/file-data.interface';
 declare var Buffer: any;
@@ -113,7 +113,7 @@ export class Client {
      */
     datapay(request: { data: any[], pay: { key: string }}, callback?: Function): Promise<any> {
         return new Promise(async (resolve, reject) => {
-            datapay.send({
+            filepay.send({
                 data: request.data,
                 pay: {
                     key: request.pay.key,
@@ -205,8 +205,8 @@ export class Client {
                                 message: 'signature key required'
                             }, callback);
                         }
-                        const identityPrivateKey = new datapay.bsv.PrivateKey(signatureKey.key);
-                        const identityAddress = identityPrivateKey.toAddress().toLegacyAddress();
+                        const identityPrivateKey = new filepay.bsv.PrivateKey(signatureKey.key);
+                        const identityAddress = identityPrivateKey.toAddress().toString();
                         args.push('0x' + Buffer.from('|').toString('hex'));
                         const opReturnHexArray = Utils.buildAuthorIdentity({
                             args: args,

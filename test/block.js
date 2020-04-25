@@ -3,7 +3,9 @@ var expect = require('chai').expect;
 var index = require('../dist/index.js');
 
 const options = {
-    bitcoinfiles_api_base: 'http://localhost:8082',
+    // api_base: 'http://localhost:8082',
+    // media_base: 'http://localhost:8082',
+    // stream_base: 'http://localhost:8083',
 }
 
 describe('block', () => {
@@ -151,12 +153,12 @@ describe('block', () => {
         const application = Buffer.from('BitcoinFiles.org', 'utf8').toString('hex');
         const filtered = await bf.getBlockFiltered(
             '00000000000000000013fd298b5567aa19f71de983f04f6d3eea1660c2d2b177',
-            {
-                base: application
-            }
+             {
+                base: application,
+             }
         );
         expect('426974636f696e46696c65732e6f7267').to.eql(application);
-        expect(filtered.length).to.eql(1);
+        expect(filtered.tx.length).to.eql(1);
     });
 
     it('Can not find any results with no match', async () => {
@@ -168,7 +170,7 @@ describe('block', () => {
                 base: `54332545534|0123456789`
             }
         );
-        expect(filtered.length).to.eql(0);
+        expect(filtered.tx.length).to.eql(0);
     });
 });
 

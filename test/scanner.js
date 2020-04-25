@@ -10,10 +10,10 @@ const options = {
     // stream_base: 'http://localhost:8083',
 }
 
-describe('crawler', () => {
-    it('Can query for blockchain info', async (done) => {
-
-        const crawler = await index.instance(options).crawler({
+describe('scanner', () => {
+    it('Can query for blockchain info', async () => {
+        /*
+        const crawler = await index.scanner({
             initHeight: 632051,
         })
         .filter({
@@ -32,7 +32,9 @@ describe('crawler', () => {
         .error((err, self) => {
             console.log('error', err.toString(), self);
         })
-        .start();
+
+        // Uncomment to start
+        .start();*/
     });
 });
 
