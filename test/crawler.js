@@ -14,14 +14,14 @@ describe('crawler', () => {
     it('Can query for blockchain info', async (done) => {
 
         const crawler = await index.instance(options).crawler({
-            initHeight: 632043,
+            initHeight: 632051,
         })
         .filter({
             outputFilter: ['1Twetcht1cTUxpdDoX5HQRpoXeuupAdyf']
         })
         .mempool(function(e, self){
             const tx = new bsv.Transaction(e.raw);
-            console.log('mempool', tx.hash);
+            // console.log('mempool', tx.hash);
         })
         .block((block, self) => {
             for (const e of block.tx) {
@@ -30,10 +30,9 @@ describe('crawler', () => {
             }
         })
         .error((err, self) => {
-            console.log('error', err, self);
+            console.log('error', err.toString(), self);
         })
         .start();
-        console.log('crawler', crawler);
     });
 });
 

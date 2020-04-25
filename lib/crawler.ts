@@ -198,9 +198,17 @@ export class BlockCrawler {
 
     private async connectBlocks() {
         while (this.started) {
+            let blockhash = null;
             try {
-                const blockhash = await this.getBlockhashByHeight(this.nextHeight());
-                let foundBlock = false;
+                blockhash = await this.getBlockhashByHeight(this.nextHeight());
+            } catch (ex) {
+                if (ex && ex.response && ex.response.status === 404) {
+                } else {
+                    this.triggerError(ex);
+                }
+            }
+            let foundBlock = false;
+            if (blockhash) {
                 await axios.get(this.getBlockUrl(blockhash)).then((response) => {
                     this.triggerBlock(response.data);
                     foundBlock = true;
@@ -208,16 +216,14 @@ export class BlockCrawler {
                 }).catch((ex) => {
                     // 404 means we reached the tip.
                     // Todo: Add re-org protection later by tracking the last N blockhashes
-                    if (ex.status === 404) {
+                    if (ex && ex.response && ex.response.status === 404) {
                         return;
                     }
                     this.triggerError(ex);
                 })
-                if (!foundBlock) {
-                    await this.sleep(10);
-                }
-            } catch (ex) {
-                this.triggerError(ex);
+            }
+            if (!blockhash || !foundBlock) {
+                await this.sleep(10);
             }
         }
     }
@@ -226,8 +232,7 @@ export class BlockCrawler {
         return await axios.get(this.options.media_base + `/height/${height}`).then((response) => {
             return response.data.blockhash;
         }).catch((ex) => {
-            this.triggerError(ex);
-            return null;
+            return ex;
         })
     }
 
