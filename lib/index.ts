@@ -2,10 +2,13 @@
 import { Client } from './client';
 import { FileData } from './models/file-data.interface';
 import { Utils, VerificationResult } from './utils';
+import { BlockCrawler } from './crawler';
 
 const defaultOptions = {
-  bitcoinfiles_api_base: 'https://media.bitcoinfiles.org',
   api_key: '',
+  api_base: 'https://api.bitcoinfiles.org',
+  media_base: 'https://media.bitcoinfiles.org',
+  stream_base: 'https://stream.bitcoinfiles.org',
 }
 
 /**
@@ -163,13 +166,18 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.block_verifyTxOutProof(proof, callback);
   }
-  saveOutputFilter(outputs: { add: string[], remove: string[] }, outputfilterId : string | null, callback?: Function) {
+  saveOutputFilter(outputs: { add: string[], remove: string[] }, callback?: Function) {
     const apiClient = new Client(this.options);
-    return apiClient.outputfilter_save(outputfilterId, outputs, callback);
+    return apiClient.outputfilter_save(outputs, callback);
   }
   getOutputFilter(outputfilterId : string, callback?: Function) {
     const apiClient = new Client(this.options);
     return apiClient.outputfilter_get(outputfilterId, callback);
+  }
+
+  crawler(options) {
+    const crawler = new BlockCrawler(Object.assign({}, this.options, options));
+    return crawler;
   }
 }
 

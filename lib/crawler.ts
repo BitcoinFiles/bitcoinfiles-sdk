@@ -1,38 +1,259 @@
-import axios from 'axios';
-declare var Buffer: any;
 
+const EventSource = require('eventsource');
 const defaultOptions = {
-    api_base: 'https://media.bitcoinfiles.org',
-    onblock: function() {},
+    api_base: 'https://api.bitcoinfiles.org',
+    media_base: 'https://media.bitcoinfiles.org',
+    stream_base: 'https://stream.bitcoinfiles.org',
 }
+const axios = require('axios');
 
 export class BlockCrawler {
     options = defaultOptions;
-    mempoolHandlers: Function[] = [];
-    blockHandlers: Function[] = [];
-    constructor(options: any) {
+    filterParams: any = {};
+    started = false;
+    mempoolConnectionEventSource;
+    mempoolSecondaryConnectionEventSource;
+    nextHeight_ = 0;
+
+    mempoolHandler;
+    blockHandler;
+    errorHandler;
+    blockIntervalTimer;
+
+    constructor(options?: {
+        initHeight: number
+    }) {
         this.options = Object.assign({}, this.options, options);
+        this.nextHeight_ = options && options.initHeight ? options.initHeight : 0;
+        this.blockIntervalTimer = null;
     }
 
-    on(event: 'mempool' | 'block', fn: Function) {
-        if (event === 'mempool') {
-            this.mempoolHandlers.push(fn);
-        }
-        if (event === 'block') {
-            this.blockHandlers.push(fn);
-        }
-        throw new Error('invalid argument');
+    nextHeight() {
+       return this.nextHeight_;
     };
 
-    private triggerMempool(tx: any) {
-        this.mempoolHandlers.forEach(function(item) {
-            item(tx);
+    filter(params: {
+        baseFilter?: string,
+        outputFilter?: string[],
+        outputFilterId?: string,
+    }) {
+        this.filterParams = {
+            baseFilter: params.baseFilter,
+            outputFilter: params.outputFilter,
+            outputFilterId: params.outputFilterId
+        }
+
+        if (this.started) {
+            this.reconnectMempoolSafe();
+        }
+        return this;
+    };
+
+    mempool(fn: Function) {
+        this.mempoolHandler = fn;
+
+        return this;
+    };
+
+    block(fn: Function) {
+        this.blockHandler = fn;
+
+        return this;
+    }
+
+    error(fn: Function) {
+        this.errorHandler = fn;
+        return this;
+    }
+
+    replayLastBlock() {
+        this.nextHeight_ -= 1;
+    }
+
+    async start(fn?: Function) {
+        if (this.started) {
+            if (fn) {
+                fn(this);
+            }
+            return true;
+        }
+        this.started = true;
+        this.connectMempool();
+        this.connectBlocks();
+        if (fn) {
+            fn(this);
+        }
+        return this;
+    }
+
+    stop(fn?: Function) {
+        this.started = false;
+        this.disconnectMempool();
+        this.disconnectBlocks();
+
+        if (fn) {
+            fn(this);
+        }
+    }
+
+    private async reconnectMempoolSafe() {
+        await this.connectSecondaryMempool();
+        this.disconnectMempool();
+        await this.connectMempool();
+        this.disconnectSecondaryMempool()
+    }
+
+    private disconnectMempool() {
+        if (this.mempoolConnectionEventSource) {
+            this.mempoolConnectionEventSource.close();
+            this.mempoolConnectionEventSource = null;
+        }
+        return true;
+    }
+
+    private disconnectSecondaryMempool() {
+        if (this.mempoolSecondaryConnectionEventSource) {
+            this.mempoolSecondaryConnectionEventSource.close();
+            this.mempoolSecondaryConnectionEventSource = null;
+        }
+        return true;
+    }
+
+    private async connectSecondaryMempool() {
+        this.mempoolSecondaryConnectionEventSource = new EventSource(this.getMempoolUrl());
+        this.mempoolSecondaryConnectionEventSource.onmessage = async (event) => {
+            try {
+                if (event.type === 'message') {
+                    const parsedPayload = JSON.parse(event.data);
+
+                    if (parsedPayload.type === 'tx') {
+                        this.triggerMempool(parsedPayload);
+                    }
+                }
+            } catch (error) {
+                this.triggerError(error);
+            }
+        };
+
+        return true;
+    }
+
+    private async connectMempool() {
+        this.mempoolConnectionEventSource = new EventSource(this.getMempoolUrl());
+        this.mempoolConnectionEventSource.onmessage = async (event) => {
+            try {
+                if (event.type === 'message') {
+                    const parsedPayload = JSON.parse(event.data);
+
+                    if (parsedPayload.type === 'tx') {
+                        this.triggerMempool(parsedPayload);
+                    }
+                }
+            } catch (error) {
+                this.triggerError(error);
+            }
+        };
+
+        return true;
+    }
+
+    private getFilterUrlQuery() {
+        let url = '';
+
+        if (this.filterParams['baseFilter']) {
+            url += '/' + this.filterParams['baseFilter']
+        }
+        url += '?';
+
+        if (this.filterParams['outputFilterId']) {
+            url += 'outputFilterId=' + this.filterParams['outputFilterId'];
+            return url;
+        }
+
+        if (this.filterParams['outputFilter']) {
+            if (!Array.isArray(this.filterParams['outputFilter'])) {
+                throw new Error('invalid argument. outputFilter must be an array')
+            }
+            if (this.filterParams['outputFilter'].length > 20) {
+                throw new Error('invalid argument. outputFilter must not contain more than 20 elements. use outputFilterId instead')
+            }
+            url += 'outputFilter=' + this.filterParams['outputFilter'].join(',');
+            return url;
+        }
+        return url;
+    }
+
+    private getMempoolUrl() {
+        return this.options.stream_base + '/mempool/filter' + this.getFilterUrlQuery();
+    }
+
+    private getBlockUrl(blockhash) {
+        return this.options.media_base + '/block/' + blockhash + '/tx/filter' + this.getFilterUrlQuery();
+    }
+
+    private async disconnectBlocks() {
+        // Nothing to do for now
+       return true;
+    }
+
+    private async connectBlocks() {
+        while (this.started) {
+            try {
+                const blockhash = await this.getBlockhashByHeight(this.nextHeight());
+                let foundBlock = false;
+                await axios.get(this.getBlockUrl(blockhash)).then((response) => {
+                    this.triggerBlock(response.data);
+                    foundBlock = true;
+                    this.nextHeight_ += 1;
+                }).catch((ex) => {
+                    // 404 means we reached the tip.
+                    // Todo: Add re-org protection later by tracking the last N blockhashes
+                    if (ex.status === 404) {
+                        return;
+                    }
+                    this.triggerError(ex);
+                })
+                if (!foundBlock) {
+                    await this.sleep(10);
+                }
+            } catch (ex) {
+                this.triggerError(ex);
+            }
+        }
+    }
+
+    private async getBlockhashByHeight(height) {
+        return await axios.get(this.options.media_base + `/height/${height}`).then((response) => {
+            return response.data.blockhash;
+        }).catch((ex) => {
+            this.triggerError(ex);
+            return null;
+        })
+    }
+
+    private async sleep(seconds) {
+        return new Promise((resolve, reject) => {
+            setTimeout(function() {
+                resolve();
+            }, seconds * 1000);
         });
+    }
+
+    private triggerMempool(tx: any) {
+        if (this.mempoolHandler) {
+            this.mempoolHandler(tx, this);
+        }
     }
 
     private triggerBlock(block: any) {
-        this.blockHandlers.forEach(function(item) {
-            item(block);
-        });
+        if (this.blockHandler) {
+            this.blockHandler(block, this);
+        }
+    }
+
+    private triggerError(err: any) {
+        if (this.errorHandler) {
+            this.errorHandler(err, this);
+        }
     }
 }

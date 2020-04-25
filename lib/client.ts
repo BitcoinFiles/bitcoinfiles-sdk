@@ -6,8 +6,10 @@ import * as textEncoder from 'text-encoder';
 import { Utils } from './utils';
 
 const defaultOptions = {
-    bitcoinfiles_api_base: 'https://media.bitcoinfiles.org',
     api_key: '',
+    api_base: 'https://api.bitcoinfiles.org',
+    media_base: 'https://media.bitcoinfiles.org',
+    stream_base: 'https://stream.bitcoinfiles.org',
 }
 
 /**
@@ -236,7 +238,7 @@ export class Client {
      */
     file_get(txid: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/${txid}`,
+            axios.get(this.options.media_base + `/${txid}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -255,7 +257,7 @@ export class Client {
      */
     tx_get(txid: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/tx/${txid}`,
+            axios.get(this.options.media_base + `/tx/${txid}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -274,7 +276,7 @@ export class Client {
      */
     txraw_get(txid: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/tx/${txid}/raw`,
+            axios.get(this.options.media_base + `/tx/${txid}/raw`,
                 {
                     headers: this.getHeaders()
                 }
@@ -335,7 +337,7 @@ export class Client {
     }
     block_getRaw(blockhash: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/rawblock/${blockhash}`,
+            axios.get(this.options.media_base + `/rawblock/${blockhash}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -359,7 +361,7 @@ export class Client {
             }
             let filterBase = filter && filter.base ? `/${filter.base}` : '';
             let filterOutputFilterId = filter && filter.outputFilterId ? filter.outputFilterId : '';
-            const url = this.options.bitcoinfiles_api_base + `/block/${blockhash}/tx/filter${filterBase}?outputFilter=${outputFilterStr}&outputFilterId=${filterOutputFilterId}`;
+            const url = this.options.media_base + `/block/${blockhash}/tx/filter${filterBase}?outputFilter=${outputFilterStr}&outputFilterId=${filterOutputFilterId}`;
             axios.get(url,
                 {
                     headers: this.getHeaders()
@@ -374,7 +376,7 @@ export class Client {
 
     block_get(blockhash: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/block/${blockhash}`,
+            axios.get(this.options.media_base + `/block/${blockhash}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -387,7 +389,7 @@ export class Client {
     }
     block_getHeaderRaw(blockhash: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/rawblockheader/${blockhash}`,
+            axios.get(this.options.media_base + `/rawblockheader/${blockhash}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -400,7 +402,7 @@ export class Client {
     }
     block_getHeader(blockhash: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/blockheader/${blockhash}`,
+            axios.get(this.options.media_base + `/blockheader/${blockhash}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -414,7 +416,7 @@ export class Client {
 
     block_getBlockHash(height: number, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/height/${height}`,
+            axios.get(this.options.media_base + `/height/${height}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -427,7 +429,7 @@ export class Client {
     }
     block_getBlockchainInfo(callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/blockchain/status`,
+            axios.get(this.options.media_base + `/blockchain/status`,
                 {
                     headers: this.getHeaders()
                 }
@@ -441,7 +443,7 @@ export class Client {
 
     block_getTxOutProof(txid: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/txproof/${txid}`,
+            axios.get(this.options.media_base + `/txproof/${txid}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -455,7 +457,7 @@ export class Client {
 
     block_getTxOutProofString(txid: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/txproof/${txid}/raw`,
+            axios.get(this.options.media_base + `/txproof/${txid}/raw`,
                 {
                     headers: this.getHeaders()
                 }
@@ -469,7 +471,7 @@ export class Client {
 
     block_verifyTxOutProof(proof: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/txproof/verify/${proof}`,
+            axios.get(this.options.media_base + `/txproof/verify/${proof}`,
                 {
                     headers: this.getHeaders()
                 }
@@ -481,24 +483,27 @@ export class Client {
         });
     }
 
-    outputfilter_save(outputFilterId: string | null, outputs: { add: string[], remove: string[] }, callback?: Function): Promise<any> {
+    outputfilter_save(outputs: { add: string[], remove: string[] }, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.post(this.options.bitcoinfiles_api_base + `/outputfilter` + (outputFilterId ? `/${outputFilterId}` : ''),
-            outputs,
-                {
-                    headers: this.getHeaders()
-                }
-            ).then((response) => {
-                return this.resolveOrCallback(resolve, response.data, callback);
-            }).catch((ex) => {
-                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
-            })
+            const opts = {
+                headers: this.getHeaders(),
+                maxContentLength: 10000000000,
+            }
+            opts['maxBodyLength'] = 1000000000;
+            axios.post(this.options.api_base + `/outputfilter`,
+                outputs,
+                opts,
+                ).then((response) => {
+                    return this.resolveOrCallback(resolve, response.data, callback);
+                }).catch((ex) => {
+                    return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+                })
         });
     }
 
     outputfilter_get(outputFilterId: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.bitcoinfiles_api_base + `/outputfilter` + (outputFilterId ? `/${outputFilterId}` : ''),
+            axios.get(this.options.media_base + `/outputfilter` + (outputFilterId ? `/${outputFilterId}` : ''),
                 {
                     headers: this.getHeaders()
                 }
