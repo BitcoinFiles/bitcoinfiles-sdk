@@ -18,7 +18,7 @@ const jsonFileReader = async (filePath) => {
             const object = JSON.parse(fileData)
             return resolve(object);
         } catch(err) {
-          console.log('fatal', err);
+          console.log('jsonFileReader', err);
           return reject(null);
         }
       })
@@ -28,7 +28,10 @@ const jsonFileReader = async (filePath) => {
 const jsonFileWriter = async (filePath, data) => {
     return new Promise(function(resolve, reject) {
         fs.writeFile(filePath, JSON.stringify(data), 'utf8', function(err) {
-            if (err) reject(err);
+            if (err){
+                console.log('jsonFileWriter', err);
+                reject(err);
+            }
             else resolve();
         });
     })
@@ -354,7 +357,10 @@ export class BlockchainScanner {
         return await axios.get(this.options.media_base + `/height/${height}`).then((response) => {
             return response.data.blockhash;
         }).catch((ex) => {
-            return ex;
+            if (ex && ex.response && ex.response.status === 404) {
+                return null
+            }
+            console.log('getBlockhashByHeight', ex);
         })
     }
 
