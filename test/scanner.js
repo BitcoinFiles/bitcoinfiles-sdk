@@ -15,7 +15,7 @@ describe('scanner', () => {
         const crawler = await index.scanner({
             initHeight: 632051,
             saveUpdatedHeight: true,
-            id: 'main',
+            id: 'madin2',
         })
         .filter({
             outputFilter: ['1Twetcht1cTUxpdDoX5HQRpoXeuupAdyf']

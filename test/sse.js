@@ -166,7 +166,8 @@ describe('sse', () => {
             expect(true).to.eql(false);
         }
     });*/
-/*
+
+    /*
     it('listen to outputFilter events', async () => {
         var es = new EventSource(url + '/filter?outputFilter=1Twetcht1cTUxpdDoX5HQRpoXeuupAdyf');
 
