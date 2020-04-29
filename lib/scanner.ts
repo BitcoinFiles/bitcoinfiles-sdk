@@ -238,12 +238,16 @@ export class BlockchainScanner {
         this.mempoolSecondaryConnectionEventSource = new EventSource(connUrl);
         this.mempoolSecondaryConnectionEventSource.onmessage = async (event) => {
             try {
+                if (this.debug) {
+                    console.log('mempoolSecondaryConnectionEventSource event', event);
+                }
                 if (event.type === 'message') {
                     const parsedPayload = JSON.parse(event.data);
                     if (parsedPayload.type === 'tx') {
                         this.triggerMempool(parsedPayload);
                     }
                 }
+
             } catch (error) {
                 this.triggerError(error);
             }
@@ -261,6 +265,9 @@ export class BlockchainScanner {
         this.mempoolConnectionEventSource = new EventSource(connUrl);
         this.mempoolConnectionEventSource.onmessage = async (event) => {
             try {
+                if (this.debug) {
+                    console.log('mempoolConnectionEventSource event', event);
+                }
                 if (event.type === 'message') {
                     const parsedPayload = JSON.parse(event.data);
 
@@ -373,18 +380,27 @@ export class BlockchainScanner {
     }
 
     private triggerMempool(tx: any) {
+        if (this.debug) {
+            console.log('triggerMempool', tx.h);
+        }
         if (this.mempoolHandler) {
             this.mempoolHandler(tx, this);
         }
     }
 
     private triggerBlock(block: any) {
+        if (this.debug) {
+            console.log('triggerBlock', block.header);
+        }
         if (this.blockHandler) {
             this.blockHandler(block, this);
         }
     }
 
     private triggerError(err: any) {
+        if (this.debug) {
+            console.log('triggerError', err);
+        }
         if (this.errorHandler) {
             this.errorHandler(err, this);
         }
