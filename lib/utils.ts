@@ -107,7 +107,6 @@ export class Utils {
         }
         const bufferWriter = new bsv.encoding.BufferWriter();
         for (const field of usedArgs) {
-
             let bf = field;
             if (!Buffer.isBuffer(field)) {
                 bf = new bsv.encoding.BufferReader(field);
@@ -218,7 +217,7 @@ export class Utils {
         let fieldIndexesForSignature: any[] = [];
         // If there are no indexes, then it is implied that everything to the left is signed
         if (indexCount > 0) {
-            for (let indexIter = 0;  indexIter < indexCount; indexIter++) {
+            for (let indexIter = 0; indexIter < indexCount; indexIter++) {
                 if ((firstFieldIndexPos + indexIter) < 0) {
                     return {
                         valid: false,
@@ -239,7 +238,8 @@ export class Utils {
                 return {valid: false, message: "field index out of bounds < 0" };
             }
             if (index >= args.length) {
-                return {valid: false, message: "field index out of bounds > length" };
+                console.log({fieldIndexesForSignature: fieldIndexesForSignature, index: index, argsLength: args.length});
+                return {valid: false, message: "field index out of bounds > length"};
             }
             fieldsToSign.push(args[index]);
         }
@@ -372,11 +372,47 @@ export class Utils {
     }
 
     /**
+     * Detect and verify author identities by rawtx
+     * @param rawtx Raw transaction to detect OP_RETURN with author identity in one of the outputs.
+     */
+    static detectAndVerifyAuthorIdentitiesByTx(rawtx: string): VerificationResult {
+        if (!rawtx) {
+            throw new Error('insufficient args');
+        }
+        const tx = new bsv.Transaction(rawtx);
+        let rawHexArgs;
+        rawHexArgs = [];
+        for (const output of tx.outputs) {
+            if (output.script.chunks.length < 3) {
+                continue;
+            }
+            let dataStartIndex;
+            // Ensure the 2nd or 3rd param is the bitcom prefix for B file
+            if (output.script.chunks[1] !== '19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut') {
+                dataStartIndex = 2;
+            } else if (output.script.chunks[2] !== '19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut') {
+                dataStartIndex = 3;
+            } else {
+                continue;
+            }
+
+            for (let i = dataStartIndex; i < output.script.chunks.length; i++) {
+                if (!output.script.chunks[i].buf) {
+                    continue;
+                }
+                const k = '0x' + output.script.chunks[i].buf.toString('hex');
+                rawHexArgs.push(k);
+            }
+        }
+        console.log('rawhexargs', rawHexArgs);
+        return Utils.detectAndVerifyAuthorIdentities(rawHexArgs, true);
+    }
+    /**
      * Detect and verify author identities
      * @param args Args of OP_RETURN (hex encoded with optional leading '0x')
-     * @param expectedAuthorAddresses Single address or array addresses that are expected to sign in order
+     * @param safe whether to use safe OP_FALSE op return data
      */
-    static detectAndVerifyAuthorIdentities(args: any[]): VerificationResult {
+    static detectAndVerifyAuthorIdentities(args: any[], safe = false): VerificationResult {
         if (!args || !Array.isArray(args)) {
             throw new Error('insufficient args');
         }

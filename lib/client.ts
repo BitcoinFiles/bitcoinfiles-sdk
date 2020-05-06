@@ -4,7 +4,8 @@ import { FileData } from './models/file-data.interface';
 declare var Buffer: any;
 import * as textEncoder from 'text-encoder';
 import { Utils } from './utils';
-
+import * as FormData from 'form-data';
+import * as rp from 'request-promise';
 const defaultOptions = {
     api_key: '',
     api_base: 'https://api.bitcoinfiles.org',
@@ -17,8 +18,11 @@ const defaultOptions = {
  */
 export class Client {
     options = defaultOptions;
-    constructor(options: any) {
-        this.options = Object.assign({}, this.options, options);
+    constructor(optionsOver?: any) {
+
+        if (optionsOver) {
+            this.options = Object.assign({}, this.options, optionsOver);
+        }
     }
     // Populate api reqest header if it's set
     getHeaders(): any {
@@ -104,6 +108,69 @@ export class Client {
             data: newArgs,
             pay: request.pay,
         }, callback);
+    }
+
+    /**
+     * Queue a request to cache the file on BitcoinFiles.org and settle on BSV blockchain after payment is received.
+     * The response contains a 'payment_sats_needed' field and an 'payment_address` that can be used to pay for queuing into a tx.
+     * @param request
+     * @param callback
+     */
+    async queueFile(request: { file: FileData, session_tag?: string}, callback?: Function): Promise<any> {
+        const maxBytes = 10000000;
+        return new Promise((resolve, reject) => {
+            const formData = new FormData({ maxDataSize: maxBytes });
+            const opts = {
+                headers: {'Content-Type': 'multipart/form-data'},
+                maxContentLength: maxBytes,
+            }
+            opts['maxBodyLength'] = maxBytes;
+            formData.append("file", Buffer.from(request.file.content, request.file.encoding ? request.file.encoding : 'hex'));
+            // console.log('formData', formData);
+            // formData.append('file', new Blob(['test payload'], { type: request.file.contentType }));
+
+            const url = `${this.options.api_base}/upload` + (request.session_tag ? `?session_tag=${request.session_tag}` : '');
+            const options = {
+                method: 'POST',
+                uri: url,
+                formData: {
+                    // Like <input type="file" name="file">
+                    file: {
+                        value: Buffer.from(request.file.content, request.file.encoding),
+                        options: {
+                            filename: request.file.name ? request.file.name : (new Date().getTime()) + '',
+                            contentType: request.file.contentType
+                        }
+                    }
+                },
+                headers: {
+                    'content-type': 'multipart/form-data'
+                }
+            };
+
+            rp(options)
+            .then((body) => {
+                this.callbackAndResolve(resolve, {
+                    success: true,
+                    message: JSON.parse(body)
+                }, callback);
+            })
+            .catch((err) => {
+                this.callbackAndResolve(resolve, {
+                    success: false,
+                    message: err,
+                }, callback);
+            });
+             /*
+            axios.post(url,
+                formData,
+                opts,
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })*/
+        });
     }
 
     /**

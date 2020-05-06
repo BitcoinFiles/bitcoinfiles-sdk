@@ -106,7 +106,7 @@ describe('create function test', () => {
 
 
     // Uncomment this line to send a real transaction
-    /*it('should return success created file utf-8 default', async () => {
+    /* it('should return success created file utf-8 default', async () => {
         var createRequest = {
             file: {
                 content: 'hello',
@@ -171,9 +171,9 @@ describe('create function test', () => {
                 },
             ]
         });
-    });*/
+    });
 
-
+    */
     // Uncomment this line to send a real transaction
     /*
     it('should return success created file utf-8 and signs it with a public key', async () => {

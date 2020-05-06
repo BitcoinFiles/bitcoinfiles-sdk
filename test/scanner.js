@@ -12,7 +12,7 @@ const options = {
 
 describe('scanner', () => {
     it('Can twetch txs', async () => {
-        const crawler = await index.scanner({
+       /* const crawler = await index.scanner({
             initHeight: 632051,
             saveUpdatedHeight: true,
             id: 'madin2',
@@ -35,7 +35,7 @@ describe('scanner', () => {
         })
 
         // Uncomment to start
-        .start();
+        .start();*/
     });
 });
 

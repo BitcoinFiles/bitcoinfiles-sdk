@@ -34,6 +34,17 @@ export function createFile(request: { file: FileData, pay: { key: string }, sign
 }
 
 /**
+ * Queue a Bitcoin Data File Upload
+ * @param request Request to upload a file
+ * @param callback Optional callback to invoke
+ * @param options Options override
+ */
+export function queueFile(request: { file: FileData, session_tag?: string }, callback?: Function, options?: any): Promise<any> {
+  const client = new Client(options);
+  return client.queueFile(request, callback);
+}
+
+/**
  * Datapay wrapper
  * @param request Request to datapay
  * @param callback Optional callback to invoke
@@ -88,6 +99,14 @@ export function detectAndVerifyAuthorIdentities(args: any[]): VerificationResult
   return Utils.detectAndVerifyAuthorIdentities(args);
 }
 
+/**
+ * Detect and verify addresses by rawtx
+ * @param rawtx raw tx to detect
+ */
+export function detectAndVerifyAuthorIdentitiesByTx(rawtx): VerificationResult {
+  return Utils.detectAndVerifyAuthorIdentitiesByTx(rawtx);
+}
+
 export function instance(newOptions?: any): BitcoinFiles {
   const mergedOptions = Object.assign({}, defaultOptions, newOptions);
   return new BitcoinFiles(mergedOptions);
@@ -101,14 +120,22 @@ export default class BitcoinFiles {
       this.options = options;
     }
   }
+
   buildFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
     const client = new Client(this.options);
     return client.buildFile(request, callback);
   }
+
   createFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {
     const client = new Client(this.options);
     return client.create(request, callback);
   }
+
+  queueFile(request: { file: FileData, session_tag?: string}, callback?: Function): Promise<any> {
+    const client = new Client(this.options);
+    return client.queueFile(request, callback);
+  }
+
   getFile(txid: string, callback?: Function): Promise<any> {
     const apiClient = new Client(this.options);
     return apiClient.file_get(txid, callback);
