@@ -126,9 +126,6 @@ export class Client {
             }
             opts['maxBodyLength'] = maxBytes;
             formData.append("file", Buffer.from(request.file.content, request.file.encoding ? request.file.encoding : 'hex'));
-            // console.log('formData', formData);
-            // formData.append('file', new Blob(['test payload'], { type: request.file.contentType }));
-
             const url = `${this.options.api_base}/upload` + (request.session_tag ? `?session_tag=${request.session_tag}` : '');
             const options = {
                 method: 'POST',
@@ -161,15 +158,6 @@ export class Client {
                     message: err,
                 }, callback);
             });
-             /*
-            axios.post(url,
-                formData,
-                opts,
-            ).then((response) => {
-                return this.resolveOrCallback(resolve, response.data, callback);
-            }).catch((ex) => {
-                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
-            })*/
         });
     }
 

@@ -17,7 +17,8 @@ describe('queueFile', () => {
                 contentType: 'text/html',
                 encoding: 'utf8', // 'hex', 'utf8', 'base64'
                 name: 'mytesth',
-            }
+            },
+            session_tag: 'a-session-random-identifier-folder-name',
         };
         var result = await index.queueFile(queueRequest, null, options);
         expect(result.success).to.equal(true);
