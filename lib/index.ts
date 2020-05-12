@@ -59,11 +59,12 @@ export function datapay(request: { data: any[], pay: { key: string }}, callback?
  * Get a Bitcoin Data File by txid
  * @param txid txid of bitoin file
  * @param callback Optional callback to invoke
+ * @param withInputInfo Whether to return the address, satoshis, and lockingScript for each vin
  * @param options Options override
  */
-export function getTx(txid: string, callback?: Function, options?: any): Promise<any> {
+export function getTx(txid: string, callback?: Function, withInputInfo = false, options?: any): Promise<any> {
   const client = new Client(options);
-  return client.tx_get(txid, callback);
+  return client.tx_get(txid, withInputInfo, callback);
 }
 
 /**
@@ -140,10 +141,11 @@ export default class BitcoinFiles {
     const apiClient = new Client(this.options);
     return apiClient.file_get(txid, callback);
   }
-  getTx(txid: string, callback?: Function): Promise<any> {
+  getTx(txid: string, callback?: Function, withInputInfo = false,): Promise<any> {
     const apiClient = new Client(this.options);
-    return apiClient.tx_get(txid, callback);
+    return apiClient.tx_get(txid, withInputInfo, callback);
   }
+
   getTxRaw(txid: string, callback?: Function): Promise<any> {
     const apiClient = new Client(this.options);
     return apiClient.txraw_get(txid, callback);

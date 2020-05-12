@@ -1,6 +1,6 @@
 {
   "name": "bitcoinfiles-sdk",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,6 +13,7 @@
     "test_proofs": "mocha --reporter spec --grep 'proofs'",
     "test_outputfilter": "mocha --reporter spec --grep 'outputfilter'",
     "test_scanner": "mocha --reporter spec --grep 'scanner'",
+    "test_scratchpad": "mocha --reporter spec --grep 'scratchpad'",
     "prepare": "npm run build"
   },
   "repository": {

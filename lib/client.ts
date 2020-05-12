@@ -308,11 +308,12 @@ export class Client {
     /**
      * Get raw tx
      * @param txid txid of file
+    * @param withInputInfo Whether to return the address, satoshis, and lockingScript for each vin
      * @param callback Optional callback to invoke after completed
      */
-    tx_get(txid: string, callback?: Function): Promise<any> {
+    tx_get(txid: string, withInputInfo = false, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.media_base + `/tx/${txid}`,
+            axios.get(this.options.media_base + `/tx/${txid}?inputInfo=${withInputInfo}`,
                 {
                     headers: this.getHeaders()
                 }

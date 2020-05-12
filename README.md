@@ -63,12 +63,12 @@ txid |  Txid of the file
 Get file transaction by txid
 
 ```shell
-curl https://media.bitcoinfiles.org/tx/408d3b99a06afd01e1717d78a7a9d2ee1c08f59003022429ae9b0a66075dfd40
+curl https://media.bitcoinfiles.org/tx/408d3b99a06afd01e1717d78a7a9d2ee1c08f59003022429ae9b0a66075dfd40?inputInfo=false
 ```
 
 ```javascript
 const bitcoinfiles = require('bitcoinfiles-sdk');
-const result = await bitcoinfiles.getTx('9aaf2ae7015fffee2f31c2ce071bd4cce76e668b65d3db0f30665a814dfda84e');
+const result = await bitcoinfiles.getTx('9aaf2ae7015fffee2f31c2ce071bd4cce76e668b65d3db0f30665a814dfda84e', null, false);
 ```
 
 > The above command returns the transaction
