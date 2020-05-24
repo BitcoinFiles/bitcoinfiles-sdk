@@ -1,6 +1,6 @@
 {
   "name": "bitcoinfiles-sdk",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
     "test_proofs": "mocha --reporter spec --grep 'proofs'",
     "test_outputfilter": "mocha --reporter spec --grep 'outputfilter'",
     "test_scanner": "mocha --reporter spec --grep 'scanner'",
-    "test_scratchpad": "mocha --reporter spec --grep 'scratchpad'",
+    "test_scratchpad": "mocha --reporter spec --grep 'Can query transaction not raw and includeBlock and inputInfo'",
     "prepare": "npm run build"
   },
   "repository": {

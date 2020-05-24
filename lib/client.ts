@@ -6,6 +6,7 @@ import * as textEncoder from 'text-encoder';
 import { Utils } from './utils';
 import * as FormData from 'form-data';
 import * as rp from 'request-promise';
+import { url } from 'inspector';
 const defaultOptions = {
     api_key: '',
     api_base: 'https://api.bitcoinfiles.org',
@@ -304,16 +305,10 @@ export class Client {
             })
         });
     }
-
-    /**
-     * Get raw tx
-     * @param txid txid of file
-    * @param withInputInfo Whether to return the address, satoshis, and lockingScript for each vin
-     * @param callback Optional callback to invoke after completed
-     */
-    tx_get(txid: string, withInputInfo = false, callback?: Function): Promise<any> {
+    tx_get(txid: string, additionalParams?: { inputInfo: boolean, raw: boolean, includeBlock: boolean}, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
-            axios.get(this.options.media_base + `/tx/${txid}?inputInfo=${withInputInfo}`,
+            const url = `/tx/${txid}?inputInfo=${additionalParams && additionalParams.inputInfo ? 1 : 0}&includeBlock=${additionalParams && additionalParams.includeBlock ? 1 : 0}&raw=${additionalParams && additionalParams.raw ? 1 : 0}`;
+            axios.get(this.options.media_base + url,
                 {
                     headers: this.getHeaders()
                 }
