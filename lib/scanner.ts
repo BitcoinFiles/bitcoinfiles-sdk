@@ -52,17 +52,20 @@ export class BlockchainScanner {
     blockIntervalTimer;
     id;
     debug;
+    onlyblocks;
     constructor(options?: {
         initHeight: number,
         saveUpdatedHeight?: boolean,
         saveHeightPath?: string,
         id?: string,
         debug?: boolean,
+        onlyblocks?: boolean,
     }) {
         this.options = Object.assign({}, this.options, options);
         this.nextHeight_ = options && options.initHeight ? options.initHeight : 0;
         this.blockIntervalTimer = null;
         this.debug = options && options.debug ? options.debug : false;
+        this.onlyblocks = options && options.onlyblocks ? options.onlyblocks : false;
         this.id = options && options.id ? options.id : '';
         this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
         this.saveHeightPath = options && options.saveHeightPath ? options.saveHeightPath : `./bitcoinfiles_scanner_${this.getId()}.json`;
@@ -120,10 +123,14 @@ export class BlockchainScanner {
         }
 
         if (this.started) {
-            if (this.debug) {
-                console.log('filter updated, reconnecting mempool');
+            if (this.onlyblocks) {
+                ; // no need to reconnect mempool
+            } else {
+                if (this.debug) {
+                    console.log('filter updated, reconnecting mempool');
+                }
+                this.reconnectMempoolSafe();
             }
-            this.reconnectMempoolSafe();
         }
         return this;
     };
@@ -173,7 +180,11 @@ export class BlockchainScanner {
         if (this.debug) {
             console.log('connecting...');
         }
-        await this.connectMempool();
+        if (this.onlyblocks) {
+            ; //
+        } else {
+            await this.connectMempool();
+        }
         if (this.debug) {
             console.log('Mempool connected...');
         }

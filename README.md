@@ -1307,6 +1307,7 @@ Note: the output filter stores an address like `12UhHtxuMMftNodp5nwoDYfBd4QaLm6S
 bitcoinfiles.scanner({
   initHeight: 632051,      // Start crawling at this height
   saveUpdatedHeight: true, // Save last height to file on disk
+  onlyblocks: false,      // include mempool or not
 })
 .filter({
   baseFilter: null,
@@ -1333,8 +1334,9 @@ bitcoinfiles.scanner({
 ```javascript
 
 bitcoinfiles.scanner({
-  initHeight: 632051,      // Start crawling at this height
-  saveUpdatedHeight: true, // Save last height to file on disk
+   initHeight: 632051,      // Start crawling at this height
+   saveUpdatedHeight: true, // Save last height to file on disk
+   onlyblocks: false,      // include mempool or not
 })
 .filter({
   baseFilter: null,
