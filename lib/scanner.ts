@@ -52,20 +52,29 @@ export class BlockchainScanner {
     blockIntervalTimer;
     id;
     debug;
+    fromMempool;
+    fromBlocks;
     onlyblocks;
+    connectBlocksStarted = false;
     constructor(options?: {
         initHeight: number,
         saveUpdatedHeight?: boolean,
         saveHeightPath?: string,
         id?: string,
         debug?: boolean,
-        onlyblocks?: boolean,
+        fromMempool?: boolean,
+        fromBlocks?: boolean,
     }) {
         this.options = Object.assign({}, this.options, options);
         this.nextHeight_ = options && options.initHeight ? options.initHeight : 0;
         this.blockIntervalTimer = null;
         this.debug = options && options.debug ? options.debug : false;
-        this.onlyblocks = options && options.onlyblocks ? options.onlyblocks : false;
+        this.fromMempool = options && options.fromMempool ? options.fromMempool : true;
+        this.fromBlocks = options && options.fromBlocks ? options.fromBlocks : true;
+        // legacy. todo remove soon
+        if (this.onlyblocks) {
+            this.fromMempool = false;
+        }
         this.id = options && options.id ? options.id : '';
         this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
         this.saveHeightPath = options && options.saveHeightPath ? options.saveHeightPath : `./bitcoinfiles_scanner_${this.getId()}.json`;
@@ -111,6 +120,7 @@ export class BlockchainScanner {
         }
     };
 
+
     filter(params: {
         baseFilter?: string,
         outputFilter?: string[],
@@ -123,9 +133,7 @@ export class BlockchainScanner {
         }
 
         if (this.started) {
-            if (this.onlyblocks) {
-                ; // no need to reconnect mempool
-            } else {
+            if (this.fromMempool) {
                 if (this.debug) {
                     console.log('filter updated, reconnecting mempool');
                 }
@@ -172,26 +180,32 @@ export class BlockchainScanner {
         if (this.debug) {
             console.log('starting...');
         }
-        await this.loadSavedHeight();
-        if (this.debug) {
-            console.log('load saved height...');
+        if (this.fromMempool) {
+            if (this.debug) {
+                console.log('connecting mempool...');
+            }
+            await this.connectMempool();
+            if (this.debug) {
+                console.log('Mempool connected...');
+            }
+        }
+
+        if (this.fromBlocks) {
+            this.connectBlocksStarted = true;
+            if (this.debug) {
+                console.log('loading saved height...');
+            }
+            await this.loadSavedHeight();
+            if (this.debug) {
+                console.log('connecting blocks...');
+            }
+            await this.connectBlocks();
+            if (this.debug) {
+                console.log('Blocks connected...');
+            }
         }
         this.started = true;
-        if (this.debug) {
-            console.log('connecting...');
-        }
-        if (this.onlyblocks) {
-            ; //
-        } else {
-            await this.connectMempool();
-        }
-        if (this.debug) {
-            console.log('Mempool connected...');
-        }
-        await this.connectBlocks();
-        if (this.debug) {
-            console.log('Blocks connected...');
-        }
+
         if (fn) {
             fn(this);
         }
@@ -202,9 +216,9 @@ export class BlockchainScanner {
         if (this.debug) {
             console.log('stopping...');
         }
-        this.started = false;
         this.disconnectMempool();
         this.disconnectBlocks();
+        this.started = false;
 
         if (this.debug) {
             console.log('stopped');
@@ -262,6 +276,11 @@ export class BlockchainScanner {
             } catch (error) {
                 this.triggerError(error);
             }
+        }
+        this.mempoolSecondaryConnectionEventSource.onerror = function(err) {
+            if (this.debug) {
+                console.log('mempoolSecondaryConnectionEventSource onerror', err);
+            }
         };
 
         return true;
@@ -288,6 +307,11 @@ export class BlockchainScanner {
                 }
             } catch (error) {
                 this.triggerError(error);
+            }
+        };
+        this.mempoolConnectionEventSource.onerror = function(err) {
+            if (this.debug) {
+                console.log('mempoolConnectionEventSource onerror', err);
             }
         };
 
@@ -329,12 +353,11 @@ export class BlockchainScanner {
     }
 
     private async disconnectBlocks() {
-        // Nothing to do for now
-       return true;
+       this.connectBlocksStarted = false;
     }
 
     private async connectBlocks() {
-        while (this.started) {
+        while (this.connectBlocksStarted) {
             let blockhash = null;
             try {
                 blockhash = await this.getBlockhashByHeight(this.nextHeight());

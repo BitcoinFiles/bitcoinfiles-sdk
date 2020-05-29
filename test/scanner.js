@@ -11,14 +11,17 @@ const options = {
 }
 
 describe('scanner', () => {
-    it('Can twetch txs', async () => {
-       /* const crawler = await index.scanner({
-            initHeight: 632051,
+    it('Can get txs', async () => {
+       const crawler = await index.scanner({
+            initHeight: 636899,
             saveUpdatedHeight: true,
             id: 'madin2',
+            debug: true,
+            ...options
         })
         .filter({
-            outputFilter: ['1Twetcht1cTUxpdDoX5HQRpoXeuupAdyf']
+            baseFilter: '01',
+            // outputFilter: ['1Twetcht1cTUxpdDoX5HQRpoXeuupAdyf']
         })
         .mempool(function(e, self){
             const tx = new bsv.Transaction(e.raw);
@@ -35,7 +38,8 @@ describe('scanner', () => {
         })
 
         // Uncomment to start
-        .start();*/
+        .start();
+        console.log('started....scanner');
     });
 });
 
