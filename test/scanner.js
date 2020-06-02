@@ -7,7 +7,7 @@ var bsv = require('bsv');
 const options = {
     // api_base: 'http://localhost:8082',
     // media_base: 'http://localhost:8082',
-    // stream_base: 'http://localhost:8083',
+    stream_base: 'http://localhost:8083',
 }
 
 describe('scanner', () => {
@@ -17,10 +17,12 @@ describe('scanner', () => {
             saveUpdatedHeight: true,
             id: 'madin2',
             debug: true,
+            fromMempool: true,
+            fromBlocks: false,
             ...options
         })
         .filter({
-            baseFilter: '01',
+            baseFilter: '00',
             // outputFilter: ['1Twetcht1cTUxpdDoX5HQRpoXeuupAdyf']
         })
         .mempool(function(e, self){

@@ -69,11 +69,18 @@ export class BlockchainScanner {
         this.nextHeight_ = options && options.initHeight ? options.initHeight : 0;
         this.blockIntervalTimer = null;
         this.debug = options && options.debug ? options.debug : false;
-        this.fromMempool = options && options.fromMempool ? options.fromMempool : true;
-        this.fromBlocks = options && options.fromBlocks ? options.fromBlocks : true;
+        this.fromMempool = true;
+        if (options && options.fromMempool === false) {
+            this.fromMempool = false;
+        }
+        this.fromBlocks = true;
+        if (options && options.fromBlocks === false) {
+            this.fromBlocks = false;
+        }
         // legacy. todo remove soon
         if (this.onlyblocks) {
             this.fromMempool = false;
+            this.fromBlocks = true;
         }
         this.id = options && options.id ? options.id : '';
         this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
@@ -119,7 +126,6 @@ export class BlockchainScanner {
             console.log('incrementNextHeight', this.nextHeight_);
         }
     };
-
 
     filter(params: {
         baseFilter?: string,
