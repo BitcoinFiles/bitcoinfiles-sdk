@@ -1,6 +1,6 @@
 {
   "name": "bitcoinfiles-sdk",
-  "version": "2.4.5",
+  "version": "2.4.6",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
