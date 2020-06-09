@@ -3,8 +3,8 @@ var expect = require('chai').expect;
 var index = require('../dist/index.js');
 
 const options = {
-    // api_base: 'http://localhost:8082',
-    // media_base: 'http://localhost:8082',
+    api_base: 'http://localhost:8082',
+    media_base: 'http://localhost:8082',
     // stream_base: 'http://localhost:8083',
 }
 
@@ -30,8 +30,8 @@ describe('block', () => {
             expect(ex).to.eql({});
         } catch (ex) {
             expect(ex).to.eql({
-                "code": 404,
-                "error": "Block not found",
+                "code": 400,
+                "error": "Request failed with status code 400",
                 "message": "",
                 "success": false,
             });
@@ -48,8 +48,8 @@ describe('block', () => {
             await bf.getBlockHeader(1);
         } catch (ex) {
             expect(ex).to.eql({
-                "code": 404,
-                "error": "Block not found",
+                "code": 400,
+                "error": "Request failed with status code 400",
                 "message": "",
                 "success": false,
             });
@@ -67,8 +67,8 @@ describe('block', () => {
             expect(ex).to.eql({});
         } catch (ex) {
             expect(ex).to.eql({
-                "code": 404,
-                "error": "Block not found",
+                "code": 400,
+                "error": "Request failed with status code 400",
                 "message": "",
                 "success": false,
             });
@@ -80,7 +80,7 @@ describe('block', () => {
         } catch (ex) {
             expect(ex).to.eql({
                 "code": 404,
-                "error": "Block not found",
+                "error": "Request failed with status code 404",
                 "message": "",
                 "success": false,
             });
@@ -98,8 +98,8 @@ describe('block', () => {
             expect(ex).to.eql({});
         } catch (ex) {
             expect(ex).to.eql({
-                "code": 404,
-                "error": "Block not found",
+                "code": 400,
+                "error": "Request failed with status code 400",
                 "message": "",
                 "success": false,
             });
@@ -112,7 +112,7 @@ describe('block', () => {
         } catch (ex) {
             expect(ex).to.eql({
                 "code": 404,
-                "error": "Block not found",
+                "error": "Request failed with status code 404",
                 "message": "",
                 "success": false,
             });

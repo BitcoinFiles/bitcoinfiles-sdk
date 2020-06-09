@@ -4,8 +4,8 @@ var index = require('../dist/index.js');
 var bsv = require('bsv');
 
 const options = {
-    // api_base: 'http://localhost:8082',
-    // media_base: 'http://localhost:8082',
+    api_base: 'http://localhost:8082',
+    media_base: 'http://localhost:8082',
     // stream_base: 'http://localhost:8083',
 }
 
