@@ -55,7 +55,7 @@ export class BlockchainScanner {
     fromMempool;
     fromBlocks;
     onlyblocks;
-    connectBlocksStarted = false;
+    processConnectBlocks = false;
     constructor(options?: {
         initHeight: number,
         saveUpdatedHeight?: boolean,
@@ -85,6 +85,8 @@ export class BlockchainScanner {
         this.id = options && options.id ? options.id : '';
         this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
         this.saveHeightPath = options && options.saveHeightPath ? options.saveHeightPath : `./bitcoinfiles_scanner_${this.getId()}.json`;
+        // Start the timer loop for blocks
+        this.connectBlocks();
     }
 
     getId(): string {
@@ -186,6 +188,8 @@ export class BlockchainScanner {
         if (this.debug) {
             console.log('starting...');
         }
+        this.started = true;
+
         if (this.fromMempool) {
             if (this.debug) {
                 console.log('connecting mempool...');
@@ -197,7 +201,7 @@ export class BlockchainScanner {
         }
 
         if (this.fromBlocks) {
-            this.connectBlocksStarted = true;
+            this.processConnectBlocks = true;
             if (this.debug) {
                 console.log('loading saved height...');
             }
@@ -205,12 +209,10 @@ export class BlockchainScanner {
             if (this.debug) {
                 console.log('connecting blocks...');
             }
-            await this.connectBlocks();
             if (this.debug) {
                 console.log('Blocks connected...');
             }
         }
-        this.started = true;
 
         if (fn) {
             fn(this);
@@ -238,8 +240,10 @@ export class BlockchainScanner {
     // This is done so we do not lose transactions we are monitoring
     private async reconnectMempoolSafe() {
         await this.connectSecondaryMempool();
+        await this.sleep(1);
         this.disconnectMempool();
         await this.connectMempool();
+        await this.sleep(1);
         this.disconnectSecondaryMempool()
     }
 
@@ -359,42 +363,52 @@ export class BlockchainScanner {
     }
 
     private async disconnectBlocks() {
-       this.connectBlocksStarted = false;
+       this.processConnectBlocks = false;
     }
 
+    /**
+     * Have a N=10 second timer to check for blocks
+     */
     private async connectBlocks() {
-        while (this.connectBlocksStarted) {
-            let blockhash = null;
+        while (true) {
             try {
-                blockhash = await this.getBlockhashByHeight(this.nextHeight());
-                if (this.debug) {
-                    console.log('connectBlocks blockhash', blockhash);
+                // Skip processing. Finally block will retry
+                if (!this.processConnectBlocks) {
+                    continue;
                 }
-            } catch (ex) {
-                if (ex && ex.response && ex.response.status === 404) {
-                } else {
-                    this.triggerError(ex);
-                }
-            }
-            let foundBlock = false;
-            if (blockhash) {
-                await axios.get(this.getBlockUrl(blockhash)).then(async (response) => {
-                    this.triggerBlock(response.data);
-                    foundBlock = true;
-                    await this.incrementNextHeight();
-                }).catch((ex) => {
-                    // 404 means we reached the tip.
-                    // Todo: Add re-org protection later by tracking the last N blockhashes
-                    if (ex && ex.response && ex.response.status === 404) {
-                        return;
+                let blockhash = null;
+                try {
+                    blockhash = await this.getBlockhashByHeight(this.nextHeight());
+                    if (this.debug) {
+                        console.log('connectBlocks blockhash', blockhash);
                     }
-                    this.triggerError(ex);
-                })
-            }
-            if (!blockhash || !foundBlock) {
-                if (this.debug) {
-                    console.log('Next block not found. Sleeping....');
+                } catch (ex) {
+                    if (ex && ex.response && ex.response.status === 404) {
+                    } else {
+                        this.triggerError(ex);
+                    }
                 }
+                let foundBlock = false;
+                if (blockhash) {
+                    await axios.get(this.getBlockUrl(blockhash)).then(async (response) => {
+                        this.triggerBlock(response.data);
+                        foundBlock = true;
+                        await this.incrementNextHeight();
+                    }).catch((ex) => {
+                        // 404 means we reached the tip.
+                        // Todo: Add re-org protection later by tracking the last N blockhashes
+                        if (ex && ex.response && ex.response.status === 404) {
+                            return;
+                        }
+                        this.triggerError(ex);
+                    })
+                }
+                if (!blockhash || !foundBlock) {
+                    if (this.debug) {
+                        console.log('Next block not found. Sleeping....');
+                    }
+                }
+            } finally {
                 await this.sleep(10);
             }
         }

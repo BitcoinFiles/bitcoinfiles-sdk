@@ -53,7 +53,7 @@ class BlockchainScanner {
         this.filterParams = {};
         this.started = false;
         this.nextHeight_ = 0;
-        this.connectBlocksStarted = false;
+        this.processConnectBlocks = false;
         this.options = Object.assign({}, this.options, options);
         this.nextHeight_ = options && options.initHeight ? options.initHeight : 0;
         this.blockIntervalTimer = null;
@@ -74,6 +74,8 @@ class BlockchainScanner {
         this.id = options && options.id ? options.id : '';
         this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
         this.saveHeightPath = options && options.saveHeightPath ? options.saveHeightPath : `./bitcoinfiles_scanner_${this.getId()}.json`;
+        // Start the timer loop for blocks
+        this.connectBlocks();
     }
     getId() {
         return this.id;
@@ -169,6 +171,7 @@ class BlockchainScanner {
             if (this.debug) {
                 console.log('starting...');
             }
+            this.started = true;
             if (this.fromMempool) {
                 if (this.debug) {
                     console.log('connecting mempool...');
@@ -179,7 +182,7 @@ class BlockchainScanner {
                 }
             }
             if (this.fromBlocks) {
-                this.connectBlocksStarted = true;
+                this.processConnectBlocks = true;
                 if (this.debug) {
                     console.log('loading saved height...');
                 }
@@ -187,12 +190,10 @@ class BlockchainScanner {
                 if (this.debug) {
                     console.log('connecting blocks...');
                 }
-                yield this.connectBlocks();
                 if (this.debug) {
                     console.log('Blocks connected...');
                 }
             }
-            this.started = true;
             if (fn) {
                 fn(this);
             }
@@ -218,8 +219,10 @@ class BlockchainScanner {
     reconnectMempoolSafe() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.connectSecondaryMempool();
+            yield this.sleep(1);
             this.disconnectMempool();
             yield this.connectMempool();
+            yield this.sleep(1);
             this.disconnectSecondaryMempool();
         });
     }
@@ -329,45 +332,56 @@ class BlockchainScanner {
     }
     disconnectBlocks() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.connectBlocksStarted = false;
+            this.processConnectBlocks = false;
         });
     }
+    /**
+     * Have a N=10 second timer to check for blocks
+     */
     connectBlocks() {
         return __awaiter(this, void 0, void 0, function* () {
-            while (this.connectBlocksStarted) {
-                let blockhash = null;
+            while (true) {
                 try {
-                    blockhash = yield this.getBlockhashByHeight(this.nextHeight());
-                    if (this.debug) {
-                        console.log('connectBlocks blockhash', blockhash);
+                    // Skip processing. Finally block will retry
+                    if (!this.processConnectBlocks) {
+                        continue;
                     }
-                }
-                catch (ex) {
-                    if (ex && ex.response && ex.response.status === 404) {
-                    }
-                    else {
-                        this.triggerError(ex);
-                    }
-                }
-                let foundBlock = false;
-                if (blockhash) {
-                    yield axios.get(this.getBlockUrl(blockhash)).then((response) => __awaiter(this, void 0, void 0, function* () {
-                        this.triggerBlock(response.data);
-                        foundBlock = true;
-                        yield this.incrementNextHeight();
-                    })).catch((ex) => {
-                        // 404 means we reached the tip.
-                        // Todo: Add re-org protection later by tracking the last N blockhashes
-                        if (ex && ex.response && ex.response.status === 404) {
-                            return;
+                    let blockhash = null;
+                    try {
+                        blockhash = yield this.getBlockhashByHeight(this.nextHeight());
+                        if (this.debug) {
+                            console.log('connectBlocks blockhash', blockhash);
                         }
-                        this.triggerError(ex);
-                    });
-                }
-                if (!blockhash || !foundBlock) {
-                    if (this.debug) {
-                        console.log('Next block not found. Sleeping....');
                     }
+                    catch (ex) {
+                        if (ex && ex.response && ex.response.status === 404) {
+                        }
+                        else {
+                            this.triggerError(ex);
+                        }
+                    }
+                    let foundBlock = false;
+                    if (blockhash) {
+                        yield axios.get(this.getBlockUrl(blockhash)).then((response) => __awaiter(this, void 0, void 0, function* () {
+                            this.triggerBlock(response.data);
+                            foundBlock = true;
+                            yield this.incrementNextHeight();
+                        })).catch((ex) => {
+                            // 404 means we reached the tip.
+                            // Todo: Add re-org protection later by tracking the last N blockhashes
+                            if (ex && ex.response && ex.response.status === 404) {
+                                return;
+                            }
+                            this.triggerError(ex);
+                        });
+                    }
+                    if (!blockhash || !foundBlock) {
+                        if (this.debug) {
+                            console.log('Next block not found. Sleeping....');
+                        }
+                    }
+                }
+                finally {
                     yield this.sleep(10);
                 }
             }

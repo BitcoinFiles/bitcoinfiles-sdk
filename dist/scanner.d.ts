@@ -20,7 +20,7 @@ export declare class BlockchainScanner {
     fromMempool: any;
     fromBlocks: any;
     onlyblocks: any;
-    connectBlocksStarted: boolean;
+    processConnectBlocks: boolean;
     constructor(options?: {
         initHeight: number;
         saveUpdatedHeight?: boolean;
@@ -54,6 +54,9 @@ export declare class BlockchainScanner {
     private getMempoolUrl;
     private getBlockUrl;
     private disconnectBlocks;
+    /**
+     * Have a N=10 second timer to check for blocks
+     */
     private connectBlocks;
     private getBlockhashByHeight;
     private sleep;
