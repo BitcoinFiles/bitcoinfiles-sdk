@@ -66,7 +66,7 @@ export class BlockchainScanner {
         fromBlocks?: boolean,
     }) {
         this.options = Object.assign({}, this.options, options);
-        this.nextHeight_ = options && options.initHeight ? options.initHeight : 0;
+        this.nextHeight_ = options && options.initHeight ? options.initHeight : 638731;
         this.blockIntervalTimer = null;
         this.debug = options && options.debug ? options.debug : false;
         this.fromMempool = true;

@@ -13,9 +13,8 @@ const options = {
 describe('scanner', () => {
     it('Can get txs', async () => {
        const crawler = await index.scanner({
-            initHeight: 638657,
             saveUpdatedHeight: true,
-            id: 'main',
+            id: 'main2',
             debug: true,
             fromMempool: true,
             fromBlocks: true,
