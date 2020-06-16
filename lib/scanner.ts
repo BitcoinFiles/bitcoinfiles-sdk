@@ -270,6 +270,9 @@ export class BlockchainScanner {
             console.log('connectSecondaryMempool connUrl', connUrl);
         }
 
+        if (this.mempoolSecondaryConnectionEventSource) {
+            this.mempoolSecondaryConnectionEventSource.close();
+        }
         this.mempoolSecondaryConnectionEventSource = new EventSource(connUrl);
         this.mempoolSecondaryConnectionEventSource.onmessage = async (event) => {
             try {
@@ -300,6 +303,10 @@ export class BlockchainScanner {
         const connUrl = this.getMempoolUrl();
         if (this.debug) {
             console.log('connectMempool connUrl', connUrl);
+        }
+
+        if (this.mempoolConnectionEventSource) {
+            this.mempoolConnectionEventSource.close();
         }
 
         this.mempoolConnectionEventSource = new EventSource(connUrl);

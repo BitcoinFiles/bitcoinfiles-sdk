@@ -246,6 +246,9 @@ class BlockchainScanner {
             if (this.debug) {
                 console.log('connectSecondaryMempool connUrl', connUrl);
             }
+            if (this.mempoolSecondaryConnectionEventSource) {
+                this.mempoolSecondaryConnectionEventSource.close();
+            }
             this.mempoolSecondaryConnectionEventSource = new EventSource(connUrl);
             this.mempoolSecondaryConnectionEventSource.onmessage = (event) => __awaiter(this, void 0, void 0, function* () {
                 try {
@@ -276,6 +279,9 @@ class BlockchainScanner {
             const connUrl = this.getMempoolUrl();
             if (this.debug) {
                 console.log('connectMempool connUrl', connUrl);
+            }
+            if (this.mempoolConnectionEventSource) {
+                this.mempoolConnectionEventSource.close();
             }
             this.mempoolConnectionEventSource = new EventSource(connUrl);
             this.mempoolConnectionEventSource.onmessage = (event) => __awaiter(this, void 0, void 0, function* () {
