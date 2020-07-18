@@ -1,11 +1,11 @@
 {
   "name": "bitcoinfiles-sdk",
-  "version": "2.4.13",
+  "version": "2.4.14",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && gulp build",
     "test": "mocha --reporter spec",
     "test_block": "mocha --reporter spec --grep 'block'",
     "test_curr": "mocha --reporter spec --grep 'current_test'",

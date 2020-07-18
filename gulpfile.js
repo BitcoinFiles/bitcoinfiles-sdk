@@ -26,7 +26,7 @@ gulp.task("build", ['copy-html'], function () {
   })
   .plugin(tsify)
   .bundle()
-  .pipe(source('bundle.min.js'))
+  .pipe(source('bitcoinfiles.min.js'))
   .pipe(buffer())
   .pipe(uglify())
   .pipe(gulp.dest("dist"));
