@@ -399,13 +399,13 @@ describe('buildFile function test', () => {
 
         // Uncomment this section to broadcast
         /*
-        var result = await index.datapay({
+        var result = await index.filepay({
             data: result.data,
             pay: {
                 key: privateKey
             }
         });
-        console.log('datapay result', result);
+        console.log('filepay result', result);
         */
     });
 
@@ -463,16 +463,16 @@ describe('buildFile function test', () => {
             }
         ]);
 
-        // Now create the file from the constructed array using the datapay wrapper
+        // Now create the file from the constructed array using the filepay wrapper
         /*
         // Uncomment this section to make a on-chain tx
-        var result = await index.datapay({
+        var result = await index.filepay({
             data: result.data,
             pay: {
                 key: privateKey
             }
         });
-        console.log('datapay result', result);
+        console.log('filepay result', result);
         */
 
         /*

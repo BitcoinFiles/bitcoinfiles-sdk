@@ -105,10 +105,12 @@ export class Client {
                 newArgs.push('0x' + i);
             }
         }
-        return this.datapay({
+        return this.filepay({
             data: newArgs,
             pay: request.pay,
-        }, callback);
+        }, (o) => {
+            callback ? callback(o) : null
+        });
     }
 
     /**
@@ -167,16 +169,16 @@ export class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
-    datapay(request: { data: any[], pay: { key: string }}, callback?: Function): Promise<any> {
+    filepay(request: { data: any[], pay: { key: string }}, callback?: Function): Promise<any> {
         return new Promise(async (resolve, reject) => {
             filepay.send({
                 data: request.data,
                 pay: {
                     key: request.pay.key,
                 }
-            }, async (err: any, transaction: any) => {
+            }, async (err: any, txid: any, fee: any, rawtx: any) => {
                 if (err) {
-                    console.log('err', err);
+                    console.log('err', err, txid, rawtx);
                     return this.callbackAndResolve(resolve, {
                         success: false,
                         message: err.message ? err.message : err.toString()
@@ -184,10 +186,21 @@ export class Client {
                 }
                 return this.callbackAndResolve(resolve, {
                     success: true,
-                    txid: transaction
+                    txid: txid,
+                    fee: fee,
+                    rawtx: rawtx
                 }, callback)
             })
         });
+    }
+
+    /**
+     * Datapay  adapter
+     * @param request create request
+     * @param callback Optional callback to invoke after completed
+     */
+    datapay(request: { data: any[], pay: { key: string }}, callback?: Function): Promise<any> {
+        return this.filepay(request, callback);
     }
 
     /**
@@ -207,7 +220,7 @@ export class Client {
     }
 
     /**for (let count = 0; count < indexes
-     * Builds the file and returns the parameters to send to datapay
+     * Builds the file and returns the parameters to send to filepay
      *
      * @param request create request
      * @param callback Optional callback to invoke after completed

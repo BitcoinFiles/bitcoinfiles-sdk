@@ -114,9 +114,11 @@ export class Utils {
             }
             bufferWriter.write(bf);
         }
+
         const appData = bufferWriter.toBuffer();
         const signature = bsv.Message(appData).sign(bsv.PrivateKey(payload.key))
         const verified = bsv.Message(appData).verify(payload.address, signature);
+
         if (!verified) {
             throw new Error('signArguments - Signature verification failure: ' + signature);
         }
@@ -238,7 +240,6 @@ export class Utils {
                 return {valid: false, message: "field index out of bounds < 0" };
             }
             if (index >= args.length) {
-                console.log({fieldIndexesForSignature: fieldIndexesForSignature, index: index, argsLength: args.length});
                 return {valid: false, message: "field index out of bounds > length"};
             }
             fieldsToSign.push(args[index]);
@@ -249,6 +250,7 @@ export class Utils {
             bufWriter.write(bf);
         }
         const appData = bufWriter.toBuffer();
+
         //try {
             const verified = bsv.Message(appData).verify(address, signature);
             if (verified) {
@@ -375,27 +377,25 @@ export class Utils {
      * Detect and verify author identities by rawtx
      * @param rawtx Raw transaction to detect OP_RETURN with author identity in one of the outputs.
      */
-    static detectAndVerifyAuthorIdentitiesByTx(rawtx: string): VerificationResult {
+    static detectAndVerifyAuthorIdentitiesByTx(rawtx: string): { [key: string] : VerificationResult }  {
+        let opReturnResults: { [key: string] : VerificationResult } = {}
         if (!rawtx) {
             throw new Error('insufficient args');
         }
         const tx = new bsv.Transaction(rawtx);
         let rawHexArgs;
         rawHexArgs = [];
+        let o = 0;
         for (const output of tx.outputs) {
-            if (output.script.chunks.length < 3) {
+
+            if (output.script.chunks.length <= 4) {
                 continue;
             }
             let dataStartIndex;
-            // Ensure the 2nd or 3rd param is the bitcom prefix for B file
-            if (output.script.chunks[1] !== '19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut') {
-                dataStartIndex = 2;
-            } else if (output.script.chunks[2] !== '19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut') {
-                dataStartIndex = 3;
-            } else {
+            if (output.script.chunks[0].opcodenum !== 0 && output.script.chunks[0].opcodenum !== 106) {
                 continue;
             }
-
+            dataStartIndex = 2;
             for (let i = dataStartIndex; i < output.script.chunks.length; i++) {
                 if (!output.script.chunks[i].buf) {
                     continue;
@@ -403,9 +403,10 @@ export class Utils {
                 const k = '0x' + output.script.chunks[i].buf.toString('hex');
                 rawHexArgs.push(k);
             }
+            opReturnResults[o] = (Utils.detectAndVerifyAuthorIdentities(rawHexArgs, true));
+            o++;
         }
-        console.log('rawhexargs', rawHexArgs);
-        return Utils.detectAndVerifyAuthorIdentities(rawHexArgs, true);
+        return opReturnResults;
     }
     /**
      * Detect and verify author identities

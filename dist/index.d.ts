@@ -41,8 +41,20 @@ export declare function queueFile(request: {
     session_tag?: string;
 }, callback?: Function, options?: any): Promise<any>;
 /**
- * Datapay wrapper
- * @param request Request to datapay
+ * filepay wrapper
+ * @param request Request to filepay
+ * @param callback Optional callback to invoke
+ * @param options Options override
+ */
+export declare function filepay(request: {
+    data: any[];
+    pay: {
+        key: string;
+    };
+}, callback?: Function, options?: any): Promise<any>;
+/**
+ * datapay adapter wrapper
+ * @param request Request to filepay
  * @param callback Optional callback to invoke
  * @param options Options override
  */
@@ -99,7 +111,9 @@ export declare function detectAndVerifyAuthorIdentities(args: any[]): Verificati
  * Detect and verify addresses by rawtx
  * @param rawtx raw tx to detect
  */
-export declare function detectAndVerifyAuthorIdentitiesByTx(rawtx: any): VerificationResult;
+export declare function detectAndVerifyAuthorIdentitiesByTx(rawtx: any): {
+    [key: string]: VerificationResult;
+};
 export declare function instance(newOptions?: any): BitcoinFiles;
 export default class BitcoinFiles {
     options: undefined;

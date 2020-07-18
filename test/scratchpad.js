@@ -11,7 +11,7 @@ const options = {
 
 
 describe('scratchpad', () => {
-    it('scratch', async () => {
+    xit('scratch', async () => {
 
         function getScriptHash(scriptHex) {
             const buffer = Buffer.from(scriptHex, 'hex');

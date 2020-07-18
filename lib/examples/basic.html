@@ -5,29 +5,36 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>BitcoinFiles Basic Create Test</title>
     <base href="/" />
-    <script src="/dist/bundle.min.js"></script>
+    <script src="https://unpkg.com/bitcoinfiles-sdk@2.4.13/dist/filepay.min.js"></script>
     <script
         src="http://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
 
     <script language="javascript">
-        $(document).ready(async (e) => {
-          var createRequest = {
-            file: {
-                name: 'Hello world',
-                content: 'hello',
-                contentType: 'text/markdown',
-            },
-            pay: {
-                key: "5KLpZB2Sfn4S7QXh6rRynXrVZXXT8zTdQBaj7Ngs3ZHpip5zd8r"
-            }
+      function getUrlParameter(name) {
+          name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+          var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+          var results = regex.exec(location.search);
+          return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+      }
+
+      $(document).ready(async (e) => {
+        var createRequest = {
+          file: {
+              name: 'Hello world',
+              content: 'hello',
+              contentType: 'text/markdown',
+          },
+          pay: {
+            key: getUrlParameter('key') || "Use bitcoin private key. Generate test ones at https://console.matterpool.io/tools"
           }
-          var bitcoinfiles = new BitcoinFiles();
-          var result = await bitcoinfiles.createFile(createRequest);
-          console.log('result', result);
-          document.getElementById('results').innerHTML = '<a target="_blank" href="https://www.bitcoinfiles.org/' + result.txid + '">Tx Created</a>';
-        });
+        }
+        var bitcoinfiles = new BitcoinFiles();
+        var result = await bitcoinfiles.createFile(createRequest);
+        console.log('result', result);
+        document.getElementById('results').innerHTML = '<a target="_blank" href="https://media.bitcoinfiles.org/' + result.txid + '">Tx Created</a>';
+      });
     </script>
   </head>
   <body>

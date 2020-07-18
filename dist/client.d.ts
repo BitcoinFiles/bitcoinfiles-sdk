@@ -50,6 +50,17 @@ export declare class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
+    filepay(request: {
+        data: any[];
+        pay: {
+            key: string;
+        };
+    }, callback?: Function): Promise<any>;
+    /**
+     * Datapay  adapter
+     * @param request create request
+     * @param callback Optional callback to invoke after completed
+     */
     datapay(request: {
         data: any[];
         pay: {
@@ -62,7 +73,7 @@ export declare class Client {
      */
     hexEncodeIfNeeded(data: string | undefined): string;
     /**for (let count = 0; count < indexes
-     * Builds the file and returns the parameters to send to datapay
+     * Builds the file and returns the parameters to send to filepay
      *
      * @param request create request
      * @param callback Optional callback to invoke after completed

@@ -111,10 +111,12 @@ class Client {
                     newArgs.push('0x' + i);
                 }
             }
-            return this.datapay({
+            return this.filepay({
                 data: newArgs,
                 pay: request.pay,
-            }, callback);
+            }, (o) => {
+                callback ? callback(o) : null;
+            });
         });
     }
     /**
@@ -173,16 +175,16 @@ class Client {
      * @param request create request
      * @param callback Optional callback to invoke after completed
      */
-    datapay(request, callback) {
+    filepay(request, callback) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             filepay.send({
                 data: request.data,
                 pay: {
                     key: request.pay.key,
                 }
-            }, (err, transaction) => __awaiter(this, void 0, void 0, function* () {
+            }, (err, txid, fee, rawtx) => __awaiter(this, void 0, void 0, function* () {
                 if (err) {
-                    console.log('err', err);
+                    console.log('err', err, txid, rawtx);
                     return this.callbackAndResolve(resolve, {
                         success: false,
                         message: err.message ? err.message : err.toString()
@@ -190,10 +192,20 @@ class Client {
                 }
                 return this.callbackAndResolve(resolve, {
                     success: true,
-                    txid: transaction
+                    txid: txid,
+                    fee: fee,
+                    rawtx: rawtx
                 }, callback);
             }));
         }));
+    }
+    /**
+     * Datapay  adapter
+     * @param request create request
+     * @param callback Optional callback to invoke after completed
+     */
+    datapay(request, callback) {
+        return this.filepay(request, callback);
     }
     /**
      * Hex encode data. Also lowercase any hex data
@@ -211,7 +223,7 @@ class Client {
         return '0x' + this.hexEncode(data).toLowerCase();
     }
     /**for (let count = 0; count < indexes
-     * Builds the file and returns the parameters to send to datapay
+     * Builds the file and returns the parameters to send to filepay
      *
      * @param request create request
      * @param callback Optional callback to invoke after completed

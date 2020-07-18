@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.scanner = exports.instance = exports.detectAndVerifyAuthorIdentitiesByTx = exports.detectAndVerifyAuthorIdentities = exports.verifyAuthorIdentity = exports.buildAuthorIdentity = exports.signArguments = exports.getTx = exports.datapay = exports.queueFile = exports.createFile = exports.buildFile = void 0;
+exports.scanner = exports.instance = exports.detectAndVerifyAuthorIdentitiesByTx = exports.detectAndVerifyAuthorIdentities = exports.verifyAuthorIdentity = exports.buildAuthorIdentity = exports.signArguments = exports.getTx = exports.datapay = exports.filepay = exports.queueFile = exports.createFile = exports.buildFile = void 0;
 const client_1 = require("./client");
 const utils_1 = require("./utils");
 const scanner_1 = require("./scanner");
@@ -44,14 +44,25 @@ function queueFile(request, callback, options) {
 }
 exports.queueFile = queueFile;
 /**
- * Datapay wrapper
- * @param request Request to datapay
+ * filepay wrapper
+ * @param request Request to filepay
+ * @param callback Optional callback to invoke
+ * @param options Options override
+ */
+function filepay(request, callback, options) {
+    const client = new client_1.Client(options);
+    return client.filepay(request, callback);
+}
+exports.filepay = filepay;
+/**
+ * datapay adapter wrapper
+ * @param request Request to filepay
  * @param callback Optional callback to invoke
  * @param options Options override
  */
 function datapay(request, callback, options) {
     const client = new client_1.Client(options);
-    return client.datapay(request, callback);
+    return client.filepay(request, callback);
 }
 exports.datapay = datapay;
 /**

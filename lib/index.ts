@@ -45,14 +45,25 @@ export function queueFile(request: { file: FileData, session_tag?: string }, cal
 }
 
 /**
- * Datapay wrapper
- * @param request Request to datapay
+ * filepay wrapper
+ * @param request Request to filepay
+ * @param callback Optional callback to invoke
+ * @param options Options override
+ */
+export function filepay(request: { data: any[], pay: { key: string }}, callback?: Function, options?: any): Promise<any> {
+  const client = new Client(options);
+  return client.filepay(request, callback);
+}
+
+/**
+ * datapay adapter wrapper
+ * @param request Request to filepay
  * @param callback Optional callback to invoke
  * @param options Options override
  */
 export function datapay(request: { data: any[], pay: { key: string }}, callback?: Function, options?: any): Promise<any> {
   const client = new Client(options);
-  return client.datapay(request, callback);
+  return client.filepay(request, callback);
 }
 
 /**
@@ -104,7 +115,7 @@ export function detectAndVerifyAuthorIdentities(args: any[]): VerificationResult
  * Detect and verify addresses by rawtx
  * @param rawtx raw tx to detect
  */
-export function detectAndVerifyAuthorIdentitiesByTx(rawtx): VerificationResult {
+export function detectAndVerifyAuthorIdentitiesByTx(rawtx): { [key: string] : VerificationResult }  {
   return Utils.detectAndVerifyAuthorIdentitiesByTx(rawtx);
 }
 

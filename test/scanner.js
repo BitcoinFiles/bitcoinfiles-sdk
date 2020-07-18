@@ -11,7 +11,7 @@ const options = {
 }
 
 describe('scanner', () => {
-    it('Can get txs', async () => {
+    xit('Can get txs', async () => {
        const crawler = await index.scanner({
             saveUpdatedHeight: true,
             id: 'main2',

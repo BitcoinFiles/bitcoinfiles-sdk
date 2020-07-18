@@ -68,7 +68,9 @@ export declare class Utils {
      * Detect and verify author identities by rawtx
      * @param rawtx Raw transaction to detect OP_RETURN with author identity in one of the outputs.
      */
-    static detectAndVerifyAuthorIdentitiesByTx(rawtx: string): VerificationResult;
+    static detectAndVerifyAuthorIdentitiesByTx(rawtx: string): {
+        [key: string]: VerificationResult;
+    };
     /**
      * Detect and verify author identities
      * @param args Args of OP_RETURN (hex encoded with optional leading '0x')
