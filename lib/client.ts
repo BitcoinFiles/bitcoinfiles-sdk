@@ -114,6 +114,34 @@ export class Client {
     }
 
     /**
+     * Pay for queued files to be converted to transactions and broadcast
+     *
+     * @param rawtx Rawtx that pays for queueFile(s)
+     * @param callback optional callback
+     */
+    async payQueuedFiles(rawtx: string, callback?: Function): Promise<any> {
+        const maxBytes = 10000000;
+        return new Promise((resolve, reject) => {
+            const opts = {
+                headers: {},
+                maxContentLength: maxBytes,
+            }
+            opts['maxBodyLength'] = maxBytes;
+            const url = `${this.options.api_base}/pay`;
+            axios.post(url,
+            {
+                rawtx: rawtx
+            },
+            opts,
+            ).then((response) => {
+                return this.resolveOrCallback(resolve, response.data, callback);
+            }).catch((ex) => {
+                return this.rejectOrCallback(reject, this.formatErrorResponse(ex), callback)
+            })
+        });
+    }
+
+    /**
      * Queue a request to cache the file on BitcoinFiles.org and settle on BSV blockchain after payment is received.
      * The response contains a 'payment_sats_needed' field and an 'payment_address` that can be used to pay for queuing into a tx.
      * @param request

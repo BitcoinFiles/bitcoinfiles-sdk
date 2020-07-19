@@ -40,6 +40,7 @@ export declare function queueFile(request: {
     file: FileData;
     session_tag?: string;
 }, callback?: Function, options?: any): Promise<any>;
+export declare function payQueuedFiles(rawtx: string, callback?: Function, options?: any): Promise<any>;
 /**
  * filepay wrapper
  * @param request Request to filepay
@@ -118,6 +119,7 @@ export declare function instance(newOptions?: any): BitcoinFiles;
 export default class BitcoinFiles {
     options: undefined;
     constructor(options?: any);
+    payQueuedFiles(rawtx: string, callback?: Function): Promise<any>;
     buildFile(request: {
         file: FileData;
         pay: {

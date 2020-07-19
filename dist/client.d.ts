@@ -36,6 +36,13 @@ export declare class Client {
         }>;
     }, callback?: Function): Promise<any>;
     /**
+     * Pay for queued files to be converted to transactions and broadcast
+     *
+     * @param rawtx Rawtx that pays for queueFile(s)
+     * @param callback optional callback
+     */
+    payQueuedFiles(rawtx: string, callback?: Function): Promise<any>;
+    /**
      * Queue a request to cache the file on BitcoinFiles.org and settle on BSV blockchain after payment is received.
      * The response contains a 'payment_sats_needed' field and an 'payment_address` that can be used to pay for queuing into a tx.
      * @param request

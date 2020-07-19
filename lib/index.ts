@@ -44,6 +44,10 @@ export function queueFile(request: { file: FileData, session_tag?: string }, cal
   return client.queueFile(request, callback);
 }
 
+export function payQueuedFiles(rawtx: string, callback?: Function, options?: any): Promise<any> {
+  const client = new Client(options);
+  return client.payQueuedFiles(rawtx, callback);
+}
 /**
  * filepay wrapper
  * @param request Request to filepay
@@ -131,6 +135,11 @@ export default class BitcoinFiles {
     if (options) {
       this.options = options;
     }
+  }
+
+  payQueuedFiles(rawtx: string, callback?: Function): Promise<any> {
+    const client = new Client(this.options);
+    return client.payQueuedFiles(rawtx, callback);
   }
 
   buildFile(request: { file: FileData, pay: { key: string }, signatures: Array<{ key: string }> }, callback?: Function): Promise<any> {

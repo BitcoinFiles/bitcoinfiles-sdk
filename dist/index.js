@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.scanner = exports.instance = exports.detectAndVerifyAuthorIdentitiesByTx = exports.detectAndVerifyAuthorIdentities = exports.verifyAuthorIdentity = exports.buildAuthorIdentity = exports.signArguments = exports.getTx = exports.datapay = exports.filepay = exports.queueFile = exports.createFile = exports.buildFile = void 0;
+exports.scanner = exports.instance = exports.detectAndVerifyAuthorIdentitiesByTx = exports.detectAndVerifyAuthorIdentities = exports.verifyAuthorIdentity = exports.buildAuthorIdentity = exports.signArguments = exports.getTx = exports.datapay = exports.filepay = exports.payQueuedFiles = exports.queueFile = exports.createFile = exports.buildFile = void 0;
 const client_1 = require("./client");
 const utils_1 = require("./utils");
 const scanner_1 = require("./scanner");
@@ -43,6 +43,11 @@ function queueFile(request, callback, options) {
     return client.queueFile(request, callback);
 }
 exports.queueFile = queueFile;
+function payQueuedFiles(rawtx, callback, options) {
+    const client = new client_1.Client(options);
+    return client.payQueuedFiles(rawtx, callback);
+}
+exports.payQueuedFiles = payQueuedFiles;
 /**
  * filepay wrapper
  * @param request Request to filepay
@@ -129,6 +134,10 @@ class BitcoinFiles {
         if (options) {
             this.options = options;
         }
+    }
+    payQueuedFiles(rawtx, callback) {
+        const client = new client_1.Client(this.options);
+        return client.payQueuedFiles(rawtx, callback);
     }
     buildFile(request, callback) {
         const client = new client_1.Client(this.options);

@@ -107,8 +107,22 @@ For files smaller than 99KB see the method `createFile`
 */
 ```
 
-This endpoint queues a file to be uploaded after the `payment_address` is paid with `payment_sats_needed`
+This endpoint queues a file to be uploaded after the `payment_address` is paid with `payment_sats_needed`. Submit to `/pay` to pay for the upload.
 
+## Pay for Queue File Upload (/pay)
+
+Pay for a file upload
+```shell
+  var rawtx = '00000233...'; // Rawtx that pays to all `payment_address` with the correct `payment_stats_needed`
+  var result = await bitcoinfiles.payQueuedFiles(rawtx);
+```
+
+```javascript
+  var rawtx = '00000233...'; // Rawtx that pays to all `payment_address` with the correct `payment_stats_needed`
+  var result = await bitcoinfiles.payQueuedFiles(rawtx);
+```
+
+This endpoint is used to submit a rawtx where the outputs pay for all the queued files returned from `/upload`
 
 ## Create File
 
