@@ -239,5 +239,7 @@ try {
   }
 }
 catch (ex) {
-    console.log('window not defined...');
+    if (typeof window !== 'undefined'){
+      console.log('window not defined...');
+    }
 }

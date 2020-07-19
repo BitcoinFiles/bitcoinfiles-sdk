@@ -157,7 +157,7 @@ export class Client {
             }
             opts['maxBodyLength'] = maxBytes;
             formData.append("file", Buffer.from(request.file.content, request.file.encoding ? request.file.encoding : 'hex'));
-            const url = `${this.options.api_base}/upload` + (request.session_tag ? `?session_tag=${request.session_tag}` : '');
+            const url = `${this.options.api_base}/upload` + (request.session_tag ? `?tag=${request.session_tag}` : '');
             const options = {
                 method: 'POST',
                 uri: url,
