@@ -226,5 +226,5 @@ try {
     }
 }
 catch (ex) {
-    console.log('window not defined...');
+    ; //console.log('window not defined...');
 }

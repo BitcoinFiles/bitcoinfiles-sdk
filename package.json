@@ -1,6 +1,6 @@
 {
   "name": "bitcoinfiles-sdk",
-  "version": "2.4.15",
+  "version": "2.4.16",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "test_uploads": "mocha --reporter spec --grep 'uploads'",
     "test_uploadnow": "mocha --reporter spec --grep 'uploadnow'",
     "test_coinbase": "mocha --reporter spec --grep 'coinbase'",
-    "test_scratchpad": "mocha --reporter spec --grep 'an query for raw header by bloc'",
+    "test_scratchpad": "mocha --reporter spec --grep 'scratchpad'",
     "prepare": "npm run build"
   },
   "repository": {
