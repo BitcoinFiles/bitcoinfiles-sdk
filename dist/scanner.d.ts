@@ -16,6 +16,7 @@ export declare class BlockchainScanner {
     errorHandler: any;
     blockIntervalTimer: any;
     id: any;
+    time: any;
     debug: any;
     fromMempool: any;
     fromBlocks: any;
@@ -29,6 +30,7 @@ export declare class BlockchainScanner {
         debug?: boolean;
         fromMempool?: boolean;
         fromBlocks?: boolean;
+        time?: number;
     });
     getId(): string;
     loadSavedHeight(): Promise<void>;

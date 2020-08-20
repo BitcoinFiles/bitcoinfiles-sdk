@@ -51,6 +51,7 @@ export class BlockchainScanner {
     errorHandler;
     blockIntervalTimer;
     id;
+    time;
     debug;
     fromMempool;
     fromBlocks;
@@ -64,6 +65,7 @@ export class BlockchainScanner {
         debug?: boolean,
         fromMempool?: boolean,
         fromBlocks?: boolean,
+        time?: number,
     }) {
         this.options = Object.assign({}, this.options, options);
         this.nextHeight_ = options && options.initHeight ? options.initHeight : 638731;
@@ -82,6 +84,7 @@ export class BlockchainScanner {
             this.fromMempool = false;
             this.fromBlocks = true;
         }
+        this.time = options && options.time ? options.time : undefined;
         this.id = options && options.id ? options.id : '';
         this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
         this.saveHeightPath = options && options.saveHeightPath ? options.saveHeightPath : `./bitcoinfiles_scanner_${this.getId()}.json`;
@@ -362,7 +365,11 @@ export class BlockchainScanner {
     }
 
     private getMempoolUrl() {
-        return this.options.stream_base + '/mempool/filter' + this.getFilterUrlQuery();
+        let url = this.options.stream_base + '/mempool/filter' + this.getFilterUrlQuery();
+        if (this.time) {
+            url += '&time=' + this.time;
+        }
+        return url;
     }
 
     private getBlockUrl(blockhash) {

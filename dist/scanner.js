@@ -71,6 +71,7 @@ class BlockchainScanner {
             this.fromMempool = false;
             this.fromBlocks = true;
         }
+        this.time = options && options.time ? options.time : undefined;
         this.id = options && options.id ? options.id : '';
         this.saveUpdatedHeight = options && options.saveUpdatedHeight ? true : false;
         this.saveHeightPath = options && options.saveHeightPath ? options.saveHeightPath : `./bitcoinfiles_scanner_${this.getId()}.json`;
@@ -331,7 +332,11 @@ class BlockchainScanner {
         return url;
     }
     getMempoolUrl() {
-        return this.options.stream_base + '/mempool/filter' + this.getFilterUrlQuery();
+        let url = this.options.stream_base + '/mempool/filter' + this.getFilterUrlQuery();
+        if (this.time) {
+            url += '&time=' + this.time;
+        }
+        return url;
     }
     getBlockUrl(blockhash) {
         return this.options.media_base + '/block/' + blockhash + '/tx/filter' + this.getFilterUrlQuery();
